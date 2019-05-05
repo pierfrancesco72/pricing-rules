@@ -3,6 +3,10 @@
  */
 grammar PricingRules;
 
+@header {
+package io.pf.pricing.antlr4;
+}
+
 // Keywords
 
 ELSE:				'else';
@@ -73,9 +77,9 @@ MOD_ASSIGN:         '%=';
 
 // DECIMAL, IDENTIFIER, COMMENTS, WS are set using regular expressions
 
-WS:                 [ \t\r\n\u000C]+ -> channel(HIDDEN);
-COMMENT:            '/*' .*? '*/'    -> channel(HIDDEN);
-LINE_COMMENT:       '//' ~[\r\n]*    -> channel(HIDDEN);
+WS:                 [ \t\r\n\u000C]+ -> skip;
+COMMENT:            '/*' .*? '*/'    -> skip;
+LINE_COMMENT:       '//' ~[\r\n]*    -> skip;
 
 
 /*
@@ -100,7 +104,7 @@ istruzione: regola | assegnazione ;
 
 regola: 	IF clausola block (ELSE block)? ;
 
-clausola: 	'(' logical_expr ')';
+clausola: 	'(' espressione_logica ')';
 
 block:		'{' istruzione* '}' ;
 
@@ -110,17 +114,17 @@ idcondizione:		IDCONDIZIONE;
 driver:				DRIVER;
 output:				OUTPUT;
 
-logical_expr
- : logical_expr AND logical_expr # LogicalExpressionAnd
- | logical_expr OR logical_expr  # LogicalExpressionOr
- | comparison_expr               # ComparisonExpression
- | LPAREN logical_expr RPAREN    # LogicalExpressionInParen
- | logical_entity                # LogicalEntity
+espressione_logica
+ : espressione_logica AND espressione_logica # LogicalExpressionAnd
+ | espressione_logica OR espressione_logica  # LogicalExpressionOr
+ | espressione_comparazione               	 # ComparisonExpression
+ | LPAREN espressione_logica RPAREN    		 # LogicalExpressionInParen
+ | entita_logica                			 # LogicalEntity
  ;
 
-comparison_expr : 
- operando operatore_comparazione logical_entity # ComparisonExpressionWithOperator
- | LPAREN comparison_expr RPAREN # ComparisonExpressionParens
+espressione_comparazione 
+ : operando operatore_comparazione entita_logica # ComparisonExpressionWithOperator
+ | LPAREN espressione_comparazione RPAREN 	     # ComparisonExpressionParens
  ;
 
 operando 
@@ -143,8 +147,8 @@ espressione_aritmetica
  | espressione_aritmetica DIV espressione_aritmetica  # ArithmeticExpressionDiv
  | espressione_aritmetica ADD espressione_aritmetica  # ArithmeticExpressionAdd
  | espressione_aritmetica SUB espressione_aritmetica  # ArithmeticExpressionSub
- | LPAREN espressione_aritmetica RPAREN        # ArithmeticExpressionParens
- | numeric_entity                       # ArithmeticExpressionNumericEntity
+ | LPAREN espressione_aritmetica RPAREN        		  # ArithmeticExpressionParens
+ | entita_numerica                       			  # ArithmeticExpressionNumericEntity
  ;
 
 operatore_assegnazione
@@ -159,12 +163,12 @@ operatore_assegnazione
  | MOD_ASSIGN
  ;	
 
-logical_entity 
+entita_logica 
  : (TRUE | FALSE) 	# LogicalConst
  | operando			# LogicalVariable
  ;
 
-numeric_entity 
+entita_numerica 
  : DECIMAL			# NumericConst
  | operando			# NumericVariable
  ;
