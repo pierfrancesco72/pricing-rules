@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.pf.pricing.antlr4.PricingRulesBaseVisitor;
+import io.pf.pricing.antlr4.PricingRulesParser.ArithmeticExpressionAddContext;
 import io.pf.pricing.antlr4.PricingRulesParser.AssegnazioneContext;
 import io.pf.pricing.antlr4.PricingRulesParser.DriverContext;
 import io.pf.pricing.antlr4.PricingRulesParser.IdcondizioneContext;
@@ -83,6 +84,12 @@ public class AlberoPricing<T> extends PricingRulesBaseVisitor<T> {
 	public T visitOutput(OutputContext ctx) {
 		// TODO Auto-generated method stub
 		return super.visitOutput(ctx);
+	}
+	
+	@Override
+	public T visitArithmeticExpressionAdd(ArithmeticExpressionAddContext ctx) {
+		// TODO Auto-generated method stub
+		return super.visitArithmeticExpressionAdd(ctx);
 	}
 	
 }
