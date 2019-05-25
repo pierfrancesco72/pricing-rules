@@ -9,25 +9,34 @@ package io.pf.pricing.antlr4;
 
 // Keywords
 
-ELSE:				'else';
-IF:					'if';
+ELSE:				'else' | 'altrimenti';
+IF:					'if' | 'se';
 TRUE:				'true';
 FALSE:				'false';
-DR:					'dr' COLON;
-OUT:				'out' COLON;
-CDZ:				'cdz' COLON;
+DR:					'dr:';
+OUT:				'out:';
+CDZ:				'cdz:';
 
-IDCONDIZIONE:		CDZ CONDIZIONE COLON COMPONENTE (COLON QUALIFICAZIONE)?;
+//CONDIZIONE:		 	CDZ (SERVIZIO COLON)? CODICE_CONDIZIONE COLON CODICE_COMPONENTE (COLON QUALIFICAZIONE|QUAL_POSIZIONALE)? (COLON LISTINO|LISTINO_POSIZIONALE)? (COLON CONVENZIONE)? ;
+CONDIZIONE:		 	CDZ (SERVIZIO COLON)? CODICE_CONDIZIONE COLON CODICE_COMPONENTE;
 DRIVER:				DR CODICE;
 OUTPUT:				OUT CODICE;
 
-CONDIZIONE:			[A-Z]+[0-9]+;
-COMPONENTE:			CODICE;
-QUALIFICAZIONE:		'Q' LPAREN CODICE'='VALORE(','CODICE'='VALORE)? RPAREN;
+fragment CODICE_CONDIZIONE:	SERVIZIO [A-Z]*[0-9]+;
+fragment CODICE_COMPONENTE:	CODICE;
 
-DECIMAL: 			'-'?[0-9]+('.'[0-9]+)? ;
-CODICE: 			[a-zA-Z_][a-zA-Z_0-9]* ;
-VALORE: 			CODICE;
+QUALIFICAZIONE:		'qual' ('ificazione')? LPAREN CODICE'='VALORE(','CODICE'='VALORE)* RPAREN;
+QUAL_POSIZIONALE:	'Q' LPAREN VALORE (COLON VALORE)* RPAREN;
+
+LISTINO:			'listino' LPAREN CODICE'='VALORE(','CODICE'='VALORE)* RPAREN;
+LISTINO_POSIZIONALE:'L' LPAREN VALORE (COLON VALORE)* RPAREN;
+
+CONVENZIONE:		'convenzione' '=' CODICE; 
+fragment SERVIZIO:	[A-Z][A-Z]([A-Z])?;
+fragment CODICE: 	[a-zA-Z_][a-zA-Z_0-9]* ;
+fragment VALORE: 	CODICE;
+NUMERO: 			'-'?[0-9]+('.'[0-9]+)? ;
+
 // Separators
 
 LPAREN:             '(';
@@ -104,36 +113,37 @@ istruzione: regola | assegnazione ;
 
 regola: 	IF clausola block (ELSE block)? ;
 
-clausola: 	'(' espressione_logica ')';
+clausola: 	'(' espressioneLogica ')';
 
 block:		'{' istruzione* '}' ;
 
-assegnazione : operando operatore_assegnazione espressione_aritmetica SEMI;
+assegnazione : operando operatoreAssegnazione espressioneAritmetica SEMI;
 
-idcondizione:		IDCONDIZIONE;
-driver:				DRIVER;
-output:				OUTPUT;
+condizione:		CONDIZIONE (COLON (QUALIFICAZIONE|QUAL_POSIZIONALE))? (COLON (LISTINO|LISTINO_POSIZIONALE))? (COLON CONVENZIONE)? ;
+driver:			DRIVER;
+output:			OUTPUT;
 
-espressione_logica
- : espressione_logica AND espressione_logica # LogicalExpressionAnd
- | espressione_logica OR espressione_logica  # LogicalExpressionOr
- | espressione_comparazione               	 # ComparisonExpression
- | LPAREN espressione_logica RPAREN    		 # LogicalExpressionInParen
- | entita_logica                			 # LogicalEntity
+espressioneLogica
+ : espressioneLogica AND espressioneLogica # EspressioneLogicaAnd
+ | espressioneLogica OR espressioneLogica  # EspressioneLogicaOr
+ | LPAREN espressioneLogica RPAREN    	   # EspressioneLogicaInParentesi
+ | espressioneComparazione				   # EspressioneLogicaEspressioneComparazione
+ | entitaLogica							   # EspressioneLogicaEntitaLogica
  ;
 
-espressione_comparazione 
- : operando operatore_comparazione entita_logica # ComparisonExpressionWithOperator
- | LPAREN espressione_comparazione RPAREN 	     # ComparisonExpressionParens
+espressioneComparazione 
+ : operando operatoreComparazione entitaLogica   # EspressioneComparazioneLogica
+ | operando operatoreComparazione entitaNumerica # EspressioneComparazioneNumerica
+ | LPAREN espressioneComparazione RPAREN 	     # EspressioneComparazioneInParentesi
  ;
 
 operando 
  : driver
  | output
- | idcondizione
+ | condizione
  ;
 
-operatore_comparazione 
+operatoreComparazione 
  : GT
  | GE
  | LT
@@ -142,16 +152,16 @@ operatore_comparazione
  | NOTEQUAL
  ;
 
-espressione_aritmetica
- : espressione_aritmetica MUL espressione_aritmetica  # ArithmeticExpressionMul
- | espressione_aritmetica DIV espressione_aritmetica  # ArithmeticExpressionDiv
- | espressione_aritmetica ADD espressione_aritmetica  # ArithmeticExpressionAdd
- | espressione_aritmetica SUB espressione_aritmetica  # ArithmeticExpressionSub
- | LPAREN espressione_aritmetica RPAREN        		  # ArithmeticExpressionParens
- | entita_numerica                       			  # ArithmeticExpressionNumericEntity
+espressioneAritmetica
+ : espressioneAritmetica MUL espressioneAritmetica  # EspressioneAritmeticaMul
+ | espressioneAritmetica DIV espressioneAritmetica  # EspressioneAritmeticaDiv
+ | espressioneAritmetica ADD espressioneAritmetica  # EspressioneAritmeticaAdd
+ | espressioneAritmetica SUB espressioneAritmetica  # EspressioneAritmeticaSub
+ | LPAREN espressioneAritmetica RPAREN        		# EspressioneAritmeticaParens
+ | entitaNumerica									# EspressioneAritmeticaEntitaNumerica
  ;
 
-operatore_assegnazione
+operatoreAssegnazione
  : ASSIGN
  | ADD_ASSIGN
  | SUB_ASSIGN
@@ -163,12 +173,12 @@ operatore_assegnazione
  | MOD_ASSIGN
  ;	
 
-entita_logica 
- : (TRUE | FALSE) 	# LogicalConst
- | operando			# LogicalVariable
+entitaLogica 
+ : (TRUE | FALSE) 	# TrueFalse
+ | operando			# VariableLogica
  ;
 
-entita_numerica 
- : DECIMAL			# NumericConst
- | operando			# NumericVariable
+entitaNumerica 
+ : NUMERO			# ValoreAssoluto
+ | operando			# VariableNumerica
  ;
