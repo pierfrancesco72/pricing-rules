@@ -139,7 +139,6 @@ espressioneComparazione
 
 operando 
  : driver
- | output
  | condizione
  ;
 

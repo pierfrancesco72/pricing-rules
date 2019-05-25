@@ -4,11 +4,8 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.omg.CORBA.CTX_RESTRICT_SCOPE;
-
 import io.pf.pricing.antlr4.PricingRulesBaseVisitor;
 import io.pf.pricing.antlr4.PricingRulesLexer;
-import io.pf.pricing.antlr4.PricingRulesParser;
 import io.pf.pricing.antlr4.PricingRulesParser.AssegnazioneContext;
 import io.pf.pricing.antlr4.PricingRulesParser.CondizioneContext;
 import io.pf.pricing.antlr4.PricingRulesParser.DriverContext;
@@ -19,7 +16,6 @@ import io.pf.pricing.antlr4.PricingRulesParser.OutputContext;
 import io.pf.pricing.antlr4.PricingRulesParser.RegolaContext;
 import io.pf.pricing.antlr4.PricingRulesParser.RegoleContext;
 import io.pf.pricing.model.Driver;
-import io.pf.pricing.model.Operando;
 
 
 public class PricingRulesVisitor extends PricingRulesBaseVisitor<BigDecimal> {
@@ -56,13 +52,34 @@ public class PricingRulesVisitor extends PricingRulesBaseVisitor<BigDecimal> {
 	@Override
 	public BigDecimal visitOperatoreAssegnazione(OperatoreAssegnazioneContext ctx) {
 		
-		ctx.ADD_ASSIGN().getText();
-		
-		switch (ctx.getText()) {
-		case "==": 
+		switch (ctx.getStart().getType()) {
+		case PricingRulesLexer.ASSIGN: 
 			System.out.println(ctx.getText());
 			break;
-
+		case PricingRulesLexer.ADD_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.SUB_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.MUL_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.DIV_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.AND_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.OR_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.MOD_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
+		case PricingRulesLexer.XOR_ASSIGN: 
+			System.out.println(ctx.getText());
+			break;
 		default:
 			System.out.println("default "+ctx.getText());
 			break;
