@@ -109,7 +109,7 @@ fragment Letter
 
 regole: 	istruzione* EOF ;
 
-istruzione: regola | assegnazione ;
+istruzione: regola | assegnazione | output;
 
 regola: 	IF clausola block (ELSE block)? ;
 
@@ -121,7 +121,7 @@ assegnazione : operando operatoreAssegnazione espressioneAritmetica SEMI;
 
 condizione:		CONDIZIONE (COLON (QUALIFICAZIONE|QUAL_POSIZIONALE))? (COLON (LISTINO|LISTINO_POSIZIONALE))? (COLON CONVENZIONE)? ;
 driver:			DRIVER;
-output:			OUTPUT;
+output:			OUTPUT SEMI;
 
 espressioneLogica
  : espressioneLogica AND espressioneLogica # EspressioneLogicaAnd

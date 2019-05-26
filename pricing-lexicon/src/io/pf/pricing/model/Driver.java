@@ -11,6 +11,41 @@ public class Driver {
 	private Boolean valoreBooleano;
 	private Condizione condizione;
 	
+	
+	/**
+	 * Construttore per le tipologie dr: cdz:
+	 * @param tipologia
+	 * @param codice
+	 */
+	public Driver (String codice) {
+		valore = BigDecimal.ZERO;
+		valoreBooleano = false;
+		int idxPrefisso = codice.indexOf(':') + 1;
+		String tipologia = codice.substring(0, idxPrefisso-1);
+		
+		if (tipologia.equals("dr"))
+			this.codice = codice.substring(idxPrefisso);
+		else if (tipologia.equals("cdz"))
+			this.codice = codice.substring(idxPrefisso);
+		else
+			throw new RuntimeException("Tipologia Operando non riconosciuta");
+		
+	}
+	
+	public Driver (String codice, Object valore) {
+		this(codice);
+		if (valore instanceof Number) {
+			this.valore  = new BigDecimal(((Number) valore).doubleValue());
+		} else if (valore instanceof Boolean) {
+			valoreBooleano = (Boolean) valore;
+			if (valoreBooleano)
+				this.valore = BigDecimal.ONE;
+		} else if (valore instanceof String) {
+			valoreStringa = (String) valore;
+		}
+	}
+	
+	
 	/**
 	 * Costruttore solo per i valori assoluti
 	 * @param numero
@@ -23,26 +58,11 @@ public class Driver {
 	public Driver(Boolean bool) {
 		this("dr:VALORE_BOOELANO");
 		valoreBooleano = bool;
+		if (bool)
+			valore = BigDecimal.ONE;
 	}
 	
-	/**
-	 * Construttore per le tipologie dr: e out:
-	 * @param tipologia
-	 * @param codice
-	 */
-	public Driver (String codice) {
-		
-		int idxPrefisso = codice.indexOf(':') + 1;
-		String tipologia = codice.substring(0, idxPrefisso-1);
-		
-		if (tipologia.equals("dr"))
-			this.codice = codice.substring(idxPrefisso);
-		else if (tipologia.equals("cdz"))
-			this.codice = codice.substring(idxPrefisso);
-		else
-			throw new RuntimeException("Tipologia Operando non riconosciuta");
-		
-	}
+
 	
 	/**
 	 * Costruttore per tipologia cdz:
@@ -123,8 +143,10 @@ public class Driver {
 			builder.append(", valoreBooleano=");
 			builder.append(valoreBooleano);
 		}
-		builder.append(", condizione=");
-		builder.append(condizione);
+		if (condizione!=null) {
+			builder.append(", condizione=");
+			builder.append(condizione);
+		}
 		builder.append("]");
 		return builder.toString();
 	}
