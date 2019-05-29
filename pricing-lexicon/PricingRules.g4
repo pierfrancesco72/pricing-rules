@@ -13,28 +13,27 @@ ELSE:				'else' | 'altrimenti';
 IF:					'if' | 'se';
 TRUE:				'true';
 FALSE:				'false';
-DR:					'dr:';
-OUT:				'out:';
-CDZ:				'cdz:';
+DR:					'dr';
+OUT:				'out';
+CDZ:				'cdz';
 
 //CONDIZIONE:		 	CDZ (SERVIZIO COLON)? CODICE_CONDIZIONE COLON CODICE_COMPONENTE (COLON QUALIFICAZIONE|QUAL_POSIZIONALE)? (COLON LISTINO|LISTINO_POSIZIONALE)? (COLON CONVENZIONE)? ;
-CONDIZIONE:		 	CDZ (SERVIZIO COLON)? CODICE_CONDIZIONE COLON CODICE_COMPONENTE;
-DRIVER:				DR CODICE;
-OUTPUT:				OUT CODICE;
+DRIVER:				DR COLON CODICE;
+OUTPUT:				OUT (COLON CODICE)+ SEMI;
 
-fragment CODICE_CONDIZIONE:	SERVIZIO [A-Z]*[0-9]+;
-fragment CODICE_COMPONENTE:	CODICE;
+CODICE_CONDIZIONE:	SERVIZIO [A-Z]*[0-9]+;
+CODICE_COMPONENTE:	CODICE;
 
-QUALIFICAZIONE:		'qual' ('ificazione')? LPAREN CODICE'='VALORE(','CODICE'='VALORE)* RPAREN;
-QUAL_POSIZIONALE:	'Q' LPAREN VALORE (COLON VALORE)* RPAREN;
+QUAL:				'qual'('ificazione')? LPAREN CODICE'='VALORE(','CODICE'='VALORE)* RPAREN;
+QUALPOS:			'Q' LPAREN VALORE (COLON VALORE)* RPAREN;
 
 LISTINO:			'listino' LPAREN CODICE'='VALORE(','CODICE'='VALORE)* RPAREN;
 LISTINO_POSIZIONALE:'L' LPAREN VALORE (COLON VALORE)* RPAREN;
 
 CONVENZIONE:		'convenzione' '=' CODICE; 
-fragment SERVIZIO:	[A-Z][A-Z]([A-Z])?;
-fragment CODICE: 	[a-zA-Z_][a-zA-Z_0-9]* ;
-fragment VALORE: 	CODICE;
+SERVIZIO:			[A-Z][A-Z]([A-Z])?;
+CODICE: 			[a-zA-Z_][a-zA-Z_0-9]* ;
+VALORE: 			CODICE;
 NUMERO: 			'-'?[0-9]+('.'[0-9]+)? ;
 
 // Separators
@@ -119,27 +118,27 @@ block:		'{' istruzione* '}' ;
 
 assegnazione : operando operatoreAssegnazione espressioneAritmetica SEMI;
 
-condizione:		CONDIZIONE (COLON (QUALIFICAZIONE|QUAL_POSIZIONALE))? (COLON (LISTINO|LISTINO_POSIZIONALE))? (COLON CONVENZIONE)? ;
+condizione:		CDZ (COLON servizio )? COLON codiceCondizione COLON codiceComponente (COLON qualificazione)? (COLON listino)? (COLON convenzione)? ;
 driver:			DRIVER;
-output:			OUTPUT SEMI;
+output:			OUTPUT;
+servizio: 		SERVIZIO;
+codiceCondizione: CODICE_CONDIZIONE;
+codiceComponente: CODICE_COMPONENTE;
+qualificazione: (QUAL|QUALPOS);
+listino:        (LISTINO|LISTINO_POSIZIONALE);
+convenzione:    CONVENZIONE;
 
 espressioneLogica
  : espressioneLogica AND espressioneLogica # EspressioneLogicaAnd
  | espressioneLogica OR espressioneLogica  # EspressioneLogicaOr
  | LPAREN espressioneLogica RPAREN    	   # EspressioneLogicaInParentesi
  | espressioneComparazione				   # EspressioneLogicaEspressioneComparazione
- | entitaLogica							   # EspressioneLogicaEntitaLogica
+ | entitaComparazione					   # EspressioneLogicaEntitaComparazione
  ;
 
 espressioneComparazione 
- : operando operatoreComparazione entitaLogica   # EspressioneComparazioneLogica
- | operando operatoreComparazione entitaNumerica # EspressioneComparazioneNumerica
- | LPAREN espressioneComparazione RPAREN 	     # EspressioneComparazioneInParentesi
- ;
-
-operando 
- : driver
- | condizione
+ : entitaComparazione operatoreComparazione entitaComparazione   # EspressioneComparazioneOperandi
+ | LPAREN espressioneComparazione RPAREN   # EspressioneComparazioneInParentesi
  ;
 
 operatoreComparazione 
@@ -157,7 +156,7 @@ espressioneAritmetica
  | espressioneAritmetica ADD espressioneAritmetica  # EspressioneAritmeticaAdd
  | espressioneAritmetica SUB espressioneAritmetica  # EspressioneAritmeticaSub
  | LPAREN espressioneAritmetica RPAREN        		# EspressioneAritmeticaParens
- | entitaNumerica									# EspressioneAritmeticaEntitaNumerica
+ | entitaComparazione								# EspressioneAritmeticaEntitaNumerica
  ;
 
 operatoreAssegnazione
@@ -172,12 +171,14 @@ operatoreAssegnazione
  | MOD_ASSIGN
  ;	
 
-entitaLogica 
- : (TRUE | FALSE) 	# TrueFalse
- | operando			# VariableLogica
+entitaComparazione 
+ : NUMERO			# ValoreNumerico
+ | (TRUE | FALSE)   # ValoreBooleano
+ | '\''CODICE'\'' 	#ValoreStringa
+ | operando			# OperandoDiComparazione
  ;
 
-entitaNumerica 
- : NUMERO			# ValoreAssoluto
- | operando			# VariableNumerica
+operando 
+ : driver
+ | condizione
  ;
