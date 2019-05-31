@@ -1,5 +1,7 @@
 package io.pf.pricing.cache;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 
@@ -27,8 +29,10 @@ public class ComponenteCache {
 		if (idComponente==null) {
 			//TODO prelevare da DB l'idCompoente
 			
+			//SELECT IDCOMPO FROM C6TBCZCO WHERE CDCOMPO = <codiceComponente>;
 			
-			
+			// per ora simulo un codice finto
+			idComponente = ThreadLocalRandom.current().nextInt(1, 2001);
 			
 			cache.put(codiceComponente, idComponente);
 		}

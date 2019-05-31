@@ -1,5 +1,7 @@
 package io.pf.pricing.cache;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 
@@ -26,9 +28,10 @@ public class CondizioneCache {
 		Integer idCondizione = CondizioneCache.getCache().peek(codiceCondizione);
 		if (idCondizione==null) {
 			//TODO prelevare da DB l'idCondizione
+			//SELECT IDCDZ FROM C6TBCDZI WHERE DESCRBR = <codiceCondzione>;
 			
-			
-			
+			// per ora simulo un codice finto
+			idCondizione = ThreadLocalRandom.current().nextInt(1, 3001);
 			
 			cache.put(codiceCondizione, idCondizione);
 		}

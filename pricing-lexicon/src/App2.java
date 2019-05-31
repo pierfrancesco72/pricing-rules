@@ -11,7 +11,6 @@ import io.pf.pricing.PricingRuleManager;
 import io.pf.pricing.antlr4.PricingRulesLexer;
 import io.pf.pricing.antlr4.PricingRulesListener;
 import io.pf.pricing.antlr4.PricingRulesParser;
-import io.pf.pricing.model.Driver;
 
 public class App2 {
 
@@ -28,6 +27,7 @@ public class App2 {
 			Map<String, Object> drivers = new HashMap<>();
 			drivers.put("POSSESSO_TELEPAS", Boolean.TRUE);
 			drivers.put("POSSESSO_ACCREDITO_PENSIONE", Boolean.TRUE);
+			drivers.put("CLIENTE.ETA", 24);
 			
 			ParseTreeWalker walker = new ParseTreeWalker();
 			PricingRulesListener listener = new PricingRuleManager(drivers);
