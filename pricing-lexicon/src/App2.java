@@ -9,7 +9,6 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import io.pf.pricing.PricingRuleManager;
 import io.pf.pricing.antlr4.PricingRulesLexer;
-import io.pf.pricing.antlr4.PricingRulesListener;
 import io.pf.pricing.antlr4.PricingRulesParser;
 
 public class App2 {
@@ -30,9 +29,10 @@ public class App2 {
 			drivers.put("CLIENTE.ETA", 24);
 			
 			ParseTreeWalker walker = new ParseTreeWalker();
-			PricingRulesListener listener = new PricingRuleManager(drivers);
+			PricingRuleManager listener = new PricingRuleManager(drivers);
 			walker.walk(listener, tree);
 			
+			System.out.println(listener.getOutput().toString());
 			
 		} catch (Exception e) {
 			e.printStackTrace();

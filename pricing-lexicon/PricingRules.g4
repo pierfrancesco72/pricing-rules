@@ -13,13 +13,9 @@ ELSE:				'else' | 'altrimenti';
 IF:					'if' | 'se';
 TRUE:				'true';
 FALSE:				'false';
-DR:					'dr';
-OUT:				'out';
-CDZ:				'cdz';
-
-//CONDIZIONE:		 	CDZ (SERVIZIO COLON)? CODICE_CONDIZIONE COLON CODICE_COMPONENTE (COLON QUALIFICAZIONE|QUAL_POSIZIONALE)? (COLON LISTINO|LISTINO_POSIZIONALE)? (COLON CONVENZIONE)? ;
-DRIVER:				DR COLON CODICE;
-OUTPUT:				OUT (COLON CODICE)+ SEMI;
+DR:					'dr:';
+OUT:				'out:';
+CDZ:				'cdz:';
 
 CODICE_CONDIZIONE:	SERVIZIO [A-Z]*[0-9]+;
 CODICE_COMPONENTE:	CODICE;
@@ -30,11 +26,16 @@ QUALPOS:			'Q' LPAREN VALORE (COLON VALORE)* RPAREN;
 LISTINO:			'listino' LPAREN CODICE'='VALORE(','CODICE'='VALORE)* RPAREN;
 LISTINO_POSIZIONALE:'L' LPAREN VALORE (COLON VALORE)* RPAREN;
 
-CONVENZIONE:		'convenzione' '=' CODICE; 
+CONVENZIONE:		'convenzione' '=' CODICE;
 SERVIZIO:			[A-Z][A-Z]([A-Z])?;
-CODICE: 			[a-zA-Z_][a-zA-Z_0-9]* ;
-VALORE: 			CODICE;
+
+DRIVER:				DR CODICE;
+OUTPUT:				OUT CODICE (COMMA CODICE)* SEMI;
+
+fragment CODICE: 	[A-Z][A-Z_0-9]* ;
+fragment VALORE: 	CODICE;
 NUMERO: 			'-'?[0-9]+('.'[0-9]+)? ;
+STRINGA:			'"'[a-zA-Z_0-9]*'"';
 
 // Separators
 
@@ -118,9 +119,9 @@ block:		'{' istruzione* '}' ;
 
 assegnazione : operando operatoreAssegnazione espressioneAritmetica SEMI;
 
-condizione:		CDZ (COLON servizio )? COLON codiceCondizione COLON codiceComponente (COLON qualificazione)? (COLON listino)? (COLON convenzione)? ;
+condizione:		CDZ (servizio COLON)? codiceCondizione COLON codiceComponente (COLON qualificazione)? (COLON listino)? (COLON convenzione)? ;
 driver:			DRIVER;
-output:			OUTPUT;
+output: 		OUTPUT;
 servizio: 		SERVIZIO;
 codiceCondizione: CODICE_CONDIZIONE;
 codiceComponente: CODICE_COMPONENTE;
@@ -174,7 +175,7 @@ operatoreAssegnazione
 entitaComparazione 
  : NUMERO			# ValoreNumerico
  | (TRUE | FALSE)   # ValoreBooleano
- | '\''CODICE'\'' 	#ValoreStringa
+ | STRINGA			# ValoreStringa
  | operando			# OperandoDiComparazione
  ;
 

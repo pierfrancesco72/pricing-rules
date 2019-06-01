@@ -2,12 +2,14 @@ package io.pf.pricing.model;
 
 public class Condizione extends CondizionePuntatore {
 	
+	private String servizio;
 	private String codiceCondizione;
 	private String codiceComponente;
 	private Qualificazione qualificazione;
 	private Listino listino;
 	private String convenzione;
 	private String rapporto;
+	
 	
 	
 	
@@ -22,6 +24,15 @@ public class Condizione extends CondizionePuntatore {
 		qualificazione = new Qualificazione(strQualificazione);
 	}
 
+	
+	public Object caricaValore () {
+		//TODO reperimento del valore dal DB2
+		
+		// metodo fake
+		return 2.0;
+		
+	}
+	
 	public String getCodiceCondizione() {
 		return codiceCondizione;
 	}
@@ -68,6 +79,14 @@ public class Condizione extends CondizionePuntatore {
 
 	public void setRapporto(String rapporto) {
 		this.rapporto = rapporto;
+	}
+
+	public String getServizio() {
+		return servizio;
+	}
+
+	public void setServizio(String servizio) {
+		this.servizio = servizio;
 	}
 	
 

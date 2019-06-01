@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 import io.pf.pricing.antlr4.PricingRulesBaseListener;
 import io.pf.pricing.antlr4.PricingRulesLexer;
 import io.pf.pricing.antlr4.PricingRulesParser.AssegnazioneContext;
+import io.pf.pricing.antlr4.PricingRulesParser.BlockContext;
+import io.pf.pricing.antlr4.PricingRulesParser.ClausolaContext;
 import io.pf.pricing.antlr4.PricingRulesParser.CondizioneContext;
 import io.pf.pricing.antlr4.PricingRulesParser.DriverContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaAddContext;
@@ -20,24 +22,37 @@ import io.pf.pricing.antlr4.PricingRulesParser.EspressioneComparazioneInParentes
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneComparazioneOperandiContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneLogicaAndContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneLogicaEntitaComparazioneContext;
+import io.pf.pricing.antlr4.PricingRulesParser.EspressioneLogicaEspressioneComparazioneContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneLogicaInParentesiContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneLogicaOrContext;
+import io.pf.pricing.antlr4.PricingRulesParser.OutputContext;
 import io.pf.pricing.antlr4.PricingRulesParser.RegolaContext;
+import io.pf.pricing.antlr4.PricingRulesParser.ValoreBooleanoContext;
+import io.pf.pricing.antlr4.PricingRulesParser.ValoreNumericoContext;
+import io.pf.pricing.antlr4.PricingRulesParser.ValoreStringaContext;
 import io.pf.pricing.model.Driver;
+import io.pf.pricing.model.Driver.TipoDriver;
+import io.pf.pricing.model.Listino;
 import io.pf.pricing.model.Qualificazione;
 
 public class PricingRuleManager extends PricingRulesBaseListener {
 	
 private static final Logger log = Logger.getLogger(PricingRuleManager.class.getName());
 	
-	private enum Istruzione{ASSEGNAZIONE, REGOLA, ESPRESSIONE_ARITMETICA, ESPRESSIONE_LOGICA}
+	private enum Istruzione{ASSEGNAZIONE, REGOLA, ESPRESSIONE_ARITMETICA, ESPRESSIONE_LOGICA, ESPRESSIONE_COMPARAZIONE}
 	private Stack<Istruzione> istruzione = new Stack<>();
 	
 	private Map<String, Driver> drivers;
+	private Map<String, String> output;
 	private Stack<Driver> operandiAssegnazione = new Stack<>();
 	private Stack<BigDecimal> operandiEspressioniAritmetiche = new Stack<>();
-	private Stack<Driver> operandiEspressioniLogiche = new Stack<>();
-
+	private Stack<Boolean> operandiEspressioniLogiche = new Stack<>();
+	private Stack<Driver> operandiEspressioniComparazione = new Stack<>();
+	//private Stack<String> operandiEspressioniComparazioneStringa = new Stack<>();
+	private Stack<Boolean> clausole = new Stack<>();
+	
+	private StringBuffer giro = new StringBuffer();
+	
 	public PricingRuleManager(Map<String, Object> drivers) {
 		this.drivers = new HashMap<String, Driver>();
 		drivers.forEach((k,v) -> this.drivers.put(k, new Driver("dr:"+k,v)));
@@ -48,7 +63,8 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	public void enterAssegnazione(AssegnazioneContext ctx) {
 		log.fine(ctx.getText());
 		istruzione.push(Istruzione.ASSEGNAZIONE);
-		super.enterAssegnazione(ctx);
+		giro.append(ctx.getText());
+		giro.append(System.lineSeparator());
 	}
 	
 	@Override
@@ -88,7 +104,7 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 			System.out.println("default "+ctx.getText());
 			break;
 		}
-		
+		giro.append(operando);
 		
 	}
 	
@@ -103,6 +119,13 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		
 		driver = drivers.get(driver.getCodice());
 		
+		gestisciDriver(driver);
+		
+		giro.append(driver);
+	}
+	
+	private void gestisciDriver(Driver driver) {
+		
 		switch (istruzione.pop()) {
 		case ASSEGNAZIONE:
 			operandiAssegnazione.push(driver);
@@ -115,7 +138,11 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 			break;
 			
 		case ESPRESSIONE_LOGICA:
-			operandiEspressioniLogiche.push(driver);
+			operandiEspressioniLogiche.push(driver.getValoreBooleano());
+			break;
+			
+		case ESPRESSIONE_COMPARAZIONE:
+			operandiEspressioniComparazione.push(driver);
 			break;
 		default:
 			break;
@@ -126,9 +153,22 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	@Override
 	public void enterCondizione(CondizioneContext ctx) {
 		Driver driver = new Driver(ctx.codiceCondizione().getText(), ctx.codiceComponente().getText());
-		if (!ctx.qualificazione().isEmpty()) {
+		if (ctx.servizio() != null) {
+			driver.getCondizione().setServizio(ctx.servizio().getText());
+		}
+		
+		if (ctx.qualificazione() != null) {
 			driver.getCondizione().setQualificazione(new Qualificazione(ctx.qualificazione().getText()));
 		}
+		if (ctx.listino() != null) {
+			driver.getCondizione().setListino(new Listino(ctx.listino().getText()));
+		}
+		
+		driver.setValore(driver.getCondizione().caricaValore());
+		
+		gestisciDriver(driver);
+		
+		giro.append(driver);
 	}
 	
 	@Override
@@ -168,8 +208,8 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void enterRegola(RegolaContext ctx) {
-		// TODO Auto-generated method stub
-		super.enterRegola(ctx);
+		giro.append("REGOLA:"+ctx.getText());
+		giro.append(System.lineSeparator());
 	}
 	
 	@Override
@@ -185,14 +225,12 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void enterEspressioneLogicaInParentesi(EspressioneLogicaInParentesiContext ctx) {
-		// TODO Auto-generated method stub
-		super.enterEspressioneLogicaInParentesi(ctx);
+		istruzione.add(Istruzione.ESPRESSIONE_LOGICA);
 	}
 	
 	@Override
 	public void enterEspressioneComparazioneInParentesi(EspressioneComparazioneInParentesiContext ctx) {
-		// TODO Auto-generated method stub
-		super.enterEspressioneComparazioneInParentesi(ctx);
+		istruzione.add(Istruzione.ESPRESSIONE_COMPARAZIONE);
 	}
 	
 	@Override
@@ -200,14 +238,164 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		// TODO Auto-generated method stub
 		super.enterEspressioneLogicaAnd(ctx);
 	}
+	
+	@Override
+	public void exitEspressioneLogicaAnd(EspressioneLogicaAndContext ctx) {
+		Boolean operandoDestra = operandiEspressioniLogiche.pop();
+		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
+		operandiEspressioniLogiche.push(operandoSinistra && operandoDestra);
+		log.fine("exitEspressioneLogicaAnd:"+operandiEspressioniLogiche.peek());
+		giro.append("Risultato Espressione Logica AND:"+operandiEspressioniLogiche.peek());
+		giro.append(System.lineSeparator());
+	}
 
 	@Override
 	public void enterEspressioneLogicaOr(EspressioneLogicaOrContext ctx) {
-		//istruzione.add(Istruzione.ESPRESSIONE_LOGICA);
+		istruzione.add(Istruzione.ESPRESSIONE_LOGICA);
 	}
 	
 	@Override
+	public void exitEspressioneLogicaOr(EspressioneLogicaOrContext ctx) {
+		Boolean operandoDestra = operandiEspressioniLogiche.pop();
+		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
+		operandiEspressioniLogiche.push(operandoSinistra || operandoDestra);
+		log.fine("exitEspressioneLogicaOr:"+operandiEspressioniLogiche.peek());
+		giro.append("Risultato Espressione Logica OR:"+operandiEspressioniLogiche.peek());
+		giro.append(System.lineSeparator());
+	}
+	
+	
+	
+	@Override
 	public void enterEspressioneComparazioneOperandi(EspressioneComparazioneOperandiContext ctx) {
-		istruzione.add(Istruzione.ESPRESSIONE_LOGICA);
+		istruzione.add(Istruzione.ESPRESSIONE_COMPARAZIONE);
+	}
+	
+	@Override
+	public void enterEspressioneLogicaEspressioneComparazione(EspressioneLogicaEspressioneComparazioneContext ctx) {
+		istruzione.add(Istruzione.ESPRESSIONE_COMPARAZIONE);
+	}
+	
+	
+	@Override
+	public void exitEspressioneLogicaEspressioneComparazione(EspressioneLogicaEspressioneComparazioneContext ctx) {
+		
+		
+		
+	}
+	
+	
+	@Override
+	public void exitEspressioneComparazioneOperandi(EspressioneComparazioneOperandiContext ctx) {
+		
+		Driver operando2 = operandiEspressioniComparazione.pop();
+		Driver operando1 = operandiEspressioniComparazione.pop();
+		Boolean risultato = false;
+		
+		if (operando2.getTipo()==TipoDriver.NUMERICO) {
+			switch (ctx.operatoreComparazione().getStart().getType()) {
+			case PricingRulesLexer.GT: 
+				risultato = (operando1.getValore().doubleValue() > operando2.getValore().doubleValue() );
+				break;
+			case PricingRulesLexer.GE: 
+				risultato = (operando1.getValore().doubleValue() >= operando2.getValore().doubleValue() );
+				break;
+			case PricingRulesLexer.LT: 
+				risultato = (operando1.getValore().doubleValue() < operando2.getValore().doubleValue() );
+				break;
+			case PricingRulesLexer.LE: 
+				risultato = (operando1.getValore().doubleValue() <= operando2.getValore().doubleValue() );
+				break;
+			case PricingRulesLexer.EQUAL: 
+				risultato = (operando1.getValore().doubleValue() == operando2.getValore().doubleValue() );
+				break;
+			case PricingRulesLexer.NOTEQUAL: 
+				risultato = (operando1.getValore().doubleValue() != operando2.getValore().doubleValue() );
+				break;
+			default:
+				break;
+			}
+		} else {
+			switch (ctx.operatoreComparazione().getStart().getType()) {
+			case PricingRulesLexer.EQUAL: 
+				risultato = operando1.equals(operando2);
+				break;
+			case PricingRulesLexer.NOTEQUAL: 
+				risultato = !operando1.equals(operando2);
+				break;
+			default:
+				throw new RuntimeException("Operatore di comparazione "+ctx.operatoreComparazione().getText()+" non utilizzabile con operandi non numerici!");
+			}
+		}
+		
+		operandiEspressioniLogiche.push(risultato);
+		giro.append("Risultato Espressione Logica:"+risultato);
+		giro.append(System.lineSeparator());
+	}
+	
+	@Override
+	public void enterClausola(ClausolaContext ctx) {
+		giro.append(ctx.getText());
+	}
+	
+	@Override
+	public void exitClausola(ClausolaContext ctx) {
+		Boolean clausola = operandiEspressioniLogiche.pop();
+		clausole.push(clausola);
+		/*if (clausola)
+			enterBlock(null);
+		else
+			enterElseblock(null);
+		*/
+		log.fine("exitClausola:"+clausole.peek());
+		
+		giro.append("Risultato Clausola:"+clausola);
+		giro.append(System.lineSeparator());
+	}
+	
+	
+	@Override
+	public void enterValoreBooleano(ValoreBooleanoContext ctx) {
+		operandiEspressioniComparazione.add(new Driver(Boolean.valueOf(ctx.getText())));
+	}
+	
+	@Override
+	public void enterValoreNumerico(ValoreNumericoContext ctx) {
+		if (istruzione.peek()==Istruzione.ESPRESSIONE_ARITMETICA)
+			operandiEspressioniAritmetiche.add(new BigDecimal(ctx.getText()));
+		else if (istruzione.peek()==Istruzione.ESPRESSIONE_COMPARAZIONE)
+			operandiEspressioniComparazione.add(new Driver(Double.parseDouble(ctx.getText())));
+	}
+	
+	@Override
+	public void enterValoreStringa(ValoreStringaContext ctx) {
+		operandiEspressioniComparazione.add(new Driver("dr:VALORE_STRINGA",ctx.getText()));
+	}
+	
+	@Override
+	public void enterBlock(BlockContext ctx) {
+		if (!clausole.pop()) {
+			ctx.children.clear();
+			clausole.push(true);
+		}
+	}
+	
+	@Override
+	public void exitOutput(OutputContext ctx) {
+		String[] drvout = ctx.getText().substring(4,ctx.getText().length()-1).split("\\,");
+		
+		output = new HashMap<>();
+		
+		for (String dr : drvout) {
+			Driver driver = drivers.get(dr);
+			if (driver != null) {
+				output.put(dr, driver.getValoreFormattato());
+			}
+		}
+	}
+
+
+	public Map<String, String> getOutput() {
+		return output;
 	}
 }

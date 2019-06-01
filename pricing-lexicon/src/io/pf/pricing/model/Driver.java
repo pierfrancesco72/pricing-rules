@@ -5,6 +5,8 @@ import java.math.RoundingMode;
 
 public class Driver {
 	
+	public enum TipoDriver {NUMERICO, STRINGA, BOOLEANO}
+	private TipoDriver tipo;
 	private String codice;
 	private BigDecimal valore;
 	private String valoreStringa;
@@ -18,29 +20,25 @@ public class Driver {
 	 * @param codice
 	 */
 	public Driver (String codice) {
+		tipo=TipoDriver.NUMERICO;
 		valore = BigDecimal.ZERO;
 		valoreBooleano = false;
 		int idxPrefisso = codice.indexOf(':') + 1;
-		String tipologia = codice.substring(0, idxPrefisso-1);
-		
-		if (tipologia.equals("dr"))
-			this.codice = codice.substring(idxPrefisso);
-		else if (tipologia.equals("cdz"))
-			this.codice = codice.substring(idxPrefisso);
-		else
-			throw new RuntimeException("Tipologia Operando non riconosciuta");
-		
+		this.codice = codice.substring(idxPrefisso);
 	}
 	
 	public Driver (String codice, Object valore) {
 		this(codice);
 		if (valore instanceof Number) {
+			tipo = TipoDriver.NUMERICO;
 			this.valore  = new BigDecimal(((Number) valore).doubleValue());
 		} else if (valore instanceof Boolean) {
+			tipo = TipoDriver.BOOLEANO;
 			valoreBooleano = (Boolean) valore;
 			if (valoreBooleano)
 				this.valore = BigDecimal.ONE;
 		} else if (valore instanceof String) {
+			tipo = TipoDriver.STRINGA;
 			valoreStringa = (String) valore;
 		}
 	}
@@ -52,11 +50,13 @@ public class Driver {
 	 */
 	public Driver(Number numero) {
 		this("dr:VALORE_NUMERICO");
+		tipo=TipoDriver.NUMERICO;
 		valore = new BigDecimal(numero.doubleValue());
 	}
 	
 	public Driver(Boolean bool) {
 		this("dr:VALORE_BOOELANO");
+		tipo=TipoDriver.BOOLEANO;
 		valoreBooleano = bool;
 		if (bool)
 			valore = BigDecimal.ONE;
@@ -88,15 +88,19 @@ public class Driver {
 	}
 	
 	public void setValore(Object valore) {
-		if (valore instanceof Number)
+		if (valore instanceof Number) {
+			tipo = TipoDriver.NUMERICO;
 			this.valore = new BigDecimal(((Number)valore).floatValue());
-		else if (valore instanceof Boolean) {
+		} else if (valore instanceof Boolean) {
+			tipo = TipoDriver.BOOLEANO;
 			if (((Boolean)valore).booleanValue()) 
 				this.valore = new BigDecimal(1); 
 			else 
 				this.valore = new BigDecimal(0);
-		} else if (valore instanceof String)
+		} else if (valore instanceof String) {
+			tipo = TipoDriver.STRINGA;
 			this.valoreStringa = valore.toString();
+		}
 	}
 	
 	
@@ -113,10 +117,6 @@ public class Driver {
 		return valoreStringa;
 	}
 
-	public void setValore(BigDecimal valore) {
-		this.valore = valore;
-	}
-	
 
 	public Condizione getCondizione() {
 		return condizione;
@@ -129,18 +129,18 @@ public class Driver {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("Driver [codice=");
+		builder.append("Driver [");
 		builder.append(codice);
-		if (valore!=null) {
-			builder.append(", valore=");
+		if (tipo==TipoDriver.NUMERICO && valore!=null) {
+			builder.append("=");
 			builder.append(valore);
 		}
-		if (valoreStringa!=null) {
-			builder.append(", valoreStringa=");
+		if (tipo==TipoDriver.STRINGA && valoreStringa!=null) {
+			builder.append("=");
 			builder.append(valoreStringa);
 		}
-		if (valoreBooleano!=null) {
-			builder.append(", valoreBooleano=");
+		if (tipo==TipoDriver.BOOLEANO && valoreBooleano!=null) {
+			builder.append("=");
 			builder.append(valoreBooleano);
 		}
 		if (condizione!=null) {
@@ -151,31 +151,63 @@ public class Driver {
 		return builder.toString();
 	}
 
+	public String getValoreFormattato() {
+		switch (tipo) {
+		case NUMERICO:
+			return valore.setScale(2, RoundingMode.HALF_DOWN).toPlainString();
+		case BOOLEANO:
+			return valoreBooleano.toString();
+		default:
+			return valoreStringa;
+		}
+	}
+
+	public TipoDriver getTipo() {
+		return tipo;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		
+
+		if (!(obj instanceof Driver)) 
+			return false;
+			
+		Driver d2 = (Driver)obj;
+		
+		if (d2.getTipo()==TipoDriver.NUMERICO) {
+			return getValore().equals(d2.getValore());
+		} else if (d2.getTipo()==TipoDriver.BOOLEANO) {
+			return getValoreBooleano().equals(d2.getValoreBooleano());
+		} else if (d2.getTipo()==TipoDriver.STRINGA) {
+			return getValoreStringa().equals(d2.getValoreStringa());
+		} 
+		return false;
+	}
+	
 
 	
 	public static void main(String[] args) {
-		Driver op = new Driver(15.95);
+		Driver op = new Driver("dr:PROVA_DRIVER",15.95);
 		op.getValore().setScale(2, RoundingMode.HALF_UP);
 		System.out.println(op.getValore().toPlainString());
 		System.out.println(op.getValore().toString());
 		
 		op.setValore(new Boolean(true));
-		System.out.println(op.getValore().toString());
+		System.out.println(op);
 		op.setValore(new Boolean(false));
-		System.out.println(op.getValore().toString());
+		System.out.println(op);
 		op.setValore(new Integer(35264));
-		System.out.println(op.getValore().toString());
+		System.out.println(op);
 		op.setValore(new Float(35264.656598));
-		System.out.println(op.getValore().toString());
+		System.out.println(op);
 		op.setValore(new Double(-35264.656598));
-		System.out.println(op.getValore().toString());
+		System.out.println(op);
 		op.setValore(new String("CIAO"));
-		System.out.println(op.getValore().toString());
-		System.out.println(op.getValoreStringa());
+		System.out.println(op);
 		
 		
 	}
-
 
 
 }

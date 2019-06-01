@@ -14,7 +14,16 @@ public class CondizionePuntatore {
 	private Integer idOggettoRapporto;
 	
 	
+	private CondizionePuntatore() {
+		idServizio = 0;
+		idQualificazione = 0;
+		idCombinazioneListino = 0;
+		idConvenzione = 0;
+		idOggettoRapporto = 0;
+	}
+	
 	public CondizionePuntatore(String codiceCondizione) {
+		this();
 		idCondizione = CondizioneCache.getId(codiceCondizione);
 	}
 	
@@ -100,23 +109,23 @@ public class CondizionePuntatore {
 		builder.append(idServizio);
 		builder.append(", idCondizione=");
 		builder.append(idCondizione);
-		if (idComponente!=null) {
+		if (idComponente!=0) {
 			builder.append(", idComponente=");
 			builder.append(idComponente);
 		}
-		if (idQualificazione!=null) {
+		if (idQualificazione!=0) {
 			builder.append(", idQualificazione=");
 			builder.append(idQualificazione);
 		}
-		if (idCombinazioneListino!=null) {
+		if (idCombinazioneListino!=0) {
 			builder.append(", idCombinazioneListino=");
 			builder.append(idCombinazioneListino);
 		}
-		if (idConvenzione!=null) {
+		if (idConvenzione!=0) {
 			builder.append(", idConvenzione=");
 			builder.append(idConvenzione);
 		}
-		if (idOggettoRapporto!=null) {
+		if (idOggettoRapporto!=0) {
 			builder.append(", idOggettoRapporto=");
 			builder.append(idOggettoRapporto);
 		}
