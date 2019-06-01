@@ -1,6 +1,11 @@
 package io.pf.pricing.model;
 
-public class Condizione extends CondizionePuntatore {
+import io.pf.pricing.cache.ConvenzioneCache;
+import io.pf.pricing.cache.OggettoRapportoCache;
+import io.pf.pricing.cache.ServizioCache;
+import io.pf.pricing.cache.ValoreCondizioneCache;
+
+public class Condizione {
 	
 	private String servizio;
 	private String codiceCondizione;
@@ -9,44 +14,32 @@ public class Condizione extends CondizionePuntatore {
 	private Listino listino;
 	private String convenzione;
 	private String rapporto;
-	
+	private CondizionePuntatore puntatore;
 	
 	
 	
 	public Condizione(String codice, String componente) {
-		super(codice, componente);
+		puntatore = new CondizionePuntatore(codice, componente);
 		this.codiceCondizione = codice;
 		this.codiceComponente = componente;
 	}
 	
 	public Condizione(String codice, String componente, String strQualificazione) {
 		this(codice, componente);
-		qualificazione = new Qualificazione(strQualificazione);
+		setQualificazione(new Qualificazione(strQualificazione));
 	}
 
 	
 	public Object caricaValore () {
-		//TODO reperimento del valore dal DB2
-		
-		// metodo fake
-		return 2.0;
-		
+		return ValoreCondizioneCache.getValore(puntatore);
 	}
 	
 	public String getCodiceCondizione() {
 		return codiceCondizione;
 	}
 
-	public void setCodiceCondizione(String codiceCondizione) {
-		this.codiceCondizione = codiceCondizione;
-	}
-
 	public String getCodiceComponente() {
 		return codiceComponente;
-	}
-
-	public void setCodiceComponente(String codiceComponente) {
-		this.codiceComponente = codiceComponente;
 	}
 
 	public Qualificazione getQualificazione() {
@@ -55,6 +48,7 @@ public class Condizione extends CondizionePuntatore {
 
 	public void setQualificazione(Qualificazione qualificazione) {
 		this.qualificazione = qualificazione;
+		puntatore.setIdQualificazione(qualificazione.getIdQUalificazione());
 	}
 
 	public Listino getListino() {
@@ -63,6 +57,7 @@ public class Condizione extends CondizionePuntatore {
 
 	public void setListino(Listino listino) {
 		this.listino = listino;
+		puntatore.setIdCombinazioneListino(listino.getIdListino());
 	}
 
 	public String getConvenzione() {
@@ -71,6 +66,7 @@ public class Condizione extends CondizionePuntatore {
 
 	public void setConvenzione(String convenzione) {
 		this.convenzione = convenzione;
+		puntatore.setIdConvenzione(ConvenzioneCache.getId(convenzione));
 	}
 
 	public String getRapporto() {
@@ -79,6 +75,7 @@ public class Condizione extends CondizionePuntatore {
 
 	public void setRapporto(String rapporto) {
 		this.rapporto = rapporto;
+		puntatore.setIdOggettoRapporto(OggettoRapportoCache.getId(rapporto));
 	}
 
 	public String getServizio() {
@@ -87,6 +84,54 @@ public class Condizione extends CondizionePuntatore {
 
 	public void setServizio(String servizio) {
 		this.servizio = servizio;
+		puntatore.setIdServizio(ServizioCache.getId(servizio));
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Condizione [");
+		if (servizio != null) {
+			builder.append("servizio=");
+			builder.append(servizio);
+			builder.append(", ");
+		}
+		if (codiceCondizione != null) {
+			builder.append("codiceCondizione=");
+			builder.append(codiceCondizione);
+			builder.append(", ");
+		}
+		if (codiceComponente != null) {
+			builder.append("codiceComponente=");
+			builder.append(codiceComponente);
+			builder.append(", ");
+		}
+		if (qualificazione != null) {
+			builder.append("qualificazione=");
+			builder.append(qualificazione);
+			builder.append(", ");
+		}
+		if (listino != null) {
+			builder.append("listino=");
+			builder.append(listino);
+			builder.append(", ");
+		}
+		if (convenzione != null) {
+			builder.append("convenzione=");
+			builder.append(convenzione);
+			builder.append(", ");
+		}
+		if (rapporto != null) {
+			builder.append("rapporto=");
+			builder.append(rapporto);
+			builder.append(", ");
+		}
+		if (puntatore != null) {
+			builder.append("puntatore=");
+			builder.append(puntatore);
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 	
 

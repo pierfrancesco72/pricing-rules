@@ -29,18 +29,7 @@ public class Driver {
 	
 	public Driver (String codice, Object valore) {
 		this(codice);
-		if (valore instanceof Number) {
-			tipo = TipoDriver.NUMERICO;
-			this.valore  = new BigDecimal(((Number) valore).doubleValue());
-		} else if (valore instanceof Boolean) {
-			tipo = TipoDriver.BOOLEANO;
-			valoreBooleano = (Boolean) valore;
-			if (valoreBooleano)
-				this.valore = BigDecimal.ONE;
-		} else if (valore instanceof String) {
-			tipo = TipoDriver.STRINGA;
-			valoreStringa = (String) valore;
-		}
+		setValore(valore);
 	}
 	
 	
@@ -50,16 +39,13 @@ public class Driver {
 	 */
 	public Driver(Number numero) {
 		this("dr:VALORE_NUMERICO");
-		tipo=TipoDriver.NUMERICO;
-		valore = new BigDecimal(numero.doubleValue());
+		setValore(numero);
+		
 	}
 	
 	public Driver(Boolean bool) {
 		this("dr:VALORE_BOOELANO");
-		tipo=TipoDriver.BOOLEANO;
-		valoreBooleano = bool;
-		if (bool)
-			valore = BigDecimal.ONE;
+		setValore(bool);
 	}
 	
 
@@ -133,7 +119,7 @@ public class Driver {
 		builder.append(codice);
 		if (tipo==TipoDriver.NUMERICO && valore!=null) {
 			builder.append("=");
-			builder.append(valore);
+			builder.append(valore.setScale(5, RoundingMode.HALF_DOWN).toPlainString());
 		}
 		if (tipo==TipoDriver.STRINGA && valoreStringa!=null) {
 			builder.append("=");

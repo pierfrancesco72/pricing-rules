@@ -17,7 +17,7 @@ public class App2 {
 	public static void main(String[] args) {
 		
 		try {
-			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing2.rule", StandardCharsets.UTF_8));
+			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing1.rule", StandardCharsets.UTF_8));
 			CommonTokenStream tokens = new CommonTokenStream(lessico);
 			PricingRulesParser parser = new PricingRulesParser(tokens);
 			

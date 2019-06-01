@@ -24,12 +24,15 @@ public class CondizionePuntatore {
 	
 	public CondizionePuntatore(String codiceCondizione) {
 		this();
-		idCondizione = CondizioneCache.getId(codiceCondizione);
+		IdCondizione idCdz = CondizioneCache.getId(codiceCondizione);
+		idCondizione = idCdz.getIdCondizione();
+		idServizio = idCdz.getIdServizioDefault();
 	}
 	
 	public CondizionePuntatore(String codiceCondizione, String codiceComponente) {
 		this(codiceCondizione);
-		idComponente = ComponenteCache.getId(codiceComponente);
+		IdComponente idCmp = ComponenteCache.getId(codiceComponente);
+		idComponente = idCmp.getIdComponente();
 	}
 
 

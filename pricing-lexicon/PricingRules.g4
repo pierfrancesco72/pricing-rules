@@ -117,7 +117,7 @@ clausola: 	'(' espressioneLogica ')';
 
 block:		'{' istruzione* '}' ;
 
-assegnazione : operando operatoreAssegnazione espressioneAritmetica SEMI;
+assegnazione : operando operatoreAssegnazione (espressioneAritmetica|STRINGA) SEMI;
 
 condizione:		CDZ (servizio COLON)? codiceCondizione COLON codiceComponente (COLON qualificazione)? (COLON listino)? (COLON convenzione)? ;
 driver:			DRIVER;

@@ -39,13 +39,14 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 	
 private static final Logger log = Logger.getLogger(PricingRuleManager.class.getName());
 	
-	private enum Istruzione{ASSEGNAZIONE, REGOLA, ESPRESSIONE_ARITMETICA, ESPRESSIONE_LOGICA, ESPRESSIONE_COMPARAZIONE}
+	private enum Istruzione{ASSEGNAZIONE, ESPRESSIONE_STRINGA, ESPRESSIONE_ARITMETICA, ESPRESSIONE_LOGICA, ESPRESSIONE_COMPARAZIONE}
 	private Stack<Istruzione> istruzione = new Stack<>();
 	
 	private Map<String, Driver> drivers;
 	private Map<String, String> output;
 	private Stack<Driver> operandiAssegnazione = new Stack<>();
 	private Stack<BigDecimal> operandiEspressioniAritmetiche = new Stack<>();
+	private Stack<String> operandiEspressioniStringa = new Stack<>();
 	private Stack<Boolean> operandiEspressioniLogiche = new Stack<>();
 	private Stack<Driver> operandiEspressioniComparazione = new Stack<>();
 	//private Stack<String> operandiEspressioniComparazioneStringa = new Stack<>();
@@ -70,41 +71,57 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	@Override
 	public void exitAssegnazione(AssegnazioneContext ctx) {
 		Driver operando = operandiAssegnazione.pop();
-		BigDecimal risultato = operandiEspressioniAritmetiche.pop();
 		
-		switch (ctx.operatoreAssegnazione().getStart().getType()) {
-		case PricingRulesLexer.ASSIGN: 
-			operando.setValore(risultato);
-			break;
-		case PricingRulesLexer.ADD_ASSIGN: 
-			operando.setValore(operando.getValore().add(risultato));
-			break;
-		case PricingRulesLexer.SUB_ASSIGN: 
-			operando.setValore(operando.getValore().subtract(risultato));
-			break;
-		case PricingRulesLexer.MUL_ASSIGN: 
-			operando.setValore(operando.getValore().multiply(risultato));
-			break;
-		case PricingRulesLexer.DIV_ASSIGN: 
-			operando.setValore(operando.getValore().divide(risultato));
-			break;
-		case PricingRulesLexer.AND_ASSIGN: 
-			System.out.println(ctx.getText());
-			break;
-		case PricingRulesLexer.OR_ASSIGN: 
-			System.out.println(ctx.getText());
-			break;
-		case PricingRulesLexer.MOD_ASSIGN: 
-			System.out.println(ctx.getText());
-			break;
-		case PricingRulesLexer.XOR_ASSIGN: 
-			System.out.println(ctx.getText());
-			break;
-		default:
-			System.out.println("default "+ctx.getText());
-			break;
+		if (!operandiEspressioniAritmetiche.isEmpty()) {
+			BigDecimal risultato = operandiEspressioniAritmetiche.pop();
+			
+			switch (ctx.operatoreAssegnazione().getStart().getType()) {
+			case PricingRulesLexer.ASSIGN: 
+				operando.setValore(risultato);
+				break;
+			case PricingRulesLexer.ADD_ASSIGN: 
+				operando.setValore(operando.getValore().add(risultato));
+				break;
+			case PricingRulesLexer.SUB_ASSIGN: 
+				operando.setValore(operando.getValore().subtract(risultato));
+				break;
+			case PricingRulesLexer.MUL_ASSIGN: 
+				operando.setValore(operando.getValore().multiply(risultato));
+				break;
+			case PricingRulesLexer.DIV_ASSIGN: 
+				operando.setValore(operando.getValore().divide(risultato));
+				break;
+			case PricingRulesLexer.AND_ASSIGN: 
+				System.out.println(ctx.getText());
+				break;
+			case PricingRulesLexer.OR_ASSIGN: 
+				System.out.println(ctx.getText());
+				break;
+			case PricingRulesLexer.MOD_ASSIGN: 
+				System.out.println(ctx.getText());
+				break;
+			case PricingRulesLexer.XOR_ASSIGN: 
+				System.out.println(ctx.getText());
+				break;
+			default:
+				System.out.println("default "+ctx.getText());
+				break;
+			}
+		} else {
+			
+			String stringa = operandiEspressioniStringa.pop();
+			stringa = stringa.substring(1, stringa.length()-1);
+			switch (ctx.operatoreAssegnazione().getStart().getType()) {
+			case PricingRulesLexer.ASSIGN: 
+				operando.setValore(stringa);
+				break;
+			case PricingRulesLexer.ADD_ASSIGN: 
+				operando.setValore(operando.getValoreStringa()+stringa);
+				break;
+			}
 		}
 		giro.append(operando);
+		System.out.println(operando);
 		
 	}
 	
@@ -130,9 +147,9 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		case ASSEGNAZIONE:
 			operandiAssegnazione.push(driver);
 			break;
-		case REGOLA:
+		case ESPRESSIONE_STRINGA:
+			operandiEspressioniStringa.push(driver.getValoreStringa());
 			break;
-
 		case ESPRESSIONE_ARITMETICA:
 			operandiEspressioniAritmetiche.push(driver.getValore());
 			break;
@@ -185,9 +202,10 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void exitEspressioneAritmeticaSub(EspressioneAritmeticaSubContext ctx) {
-		BigDecimal differenza = operandiEspressioniAritmetiche.pop();
-		differenza = differenza.subtract(operandiEspressioniAritmetiche.pop());
-		operandiEspressioniAritmetiche.push(differenza);
+		BigDecimal sottraendo = operandiEspressioniAritmetiche.pop();
+		BigDecimal minuendo = operandiEspressioniAritmetiche.pop();
+		minuendo = minuendo.subtract(sottraendo);
+		operandiEspressioniAritmetiche.push(minuendo);
 	}
 	
 	@Override
@@ -199,9 +217,10 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void exitEspressioneAritmeticaDiv(EspressioneAritmeticaDivContext ctx) {
-		BigDecimal divisione = operandiEspressioniAritmetiche.pop();
-		divisione = divisione.divide(operandiEspressioniAritmetiche.pop());
-		operandiEspressioniAritmetiche.push(divisione);
+		BigDecimal divisore = operandiEspressioniAritmetiche.pop();
+		BigDecimal dividendo = operandiEspressioniAritmetiche.pop();
+		
+		operandiEspressioniAritmetiche.push(dividendo.divide(divisore));
 	}
 	
 	
@@ -356,20 +375,21 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void enterValoreBooleano(ValoreBooleanoContext ctx) {
-		operandiEspressioniComparazione.add(new Driver(Boolean.valueOf(ctx.getText())));
+		operandiEspressioniComparazione.push(new Driver(Boolean.valueOf(ctx.getText())));
 	}
 	
 	@Override
 	public void enterValoreNumerico(ValoreNumericoContext ctx) {
 		if (istruzione.peek()==Istruzione.ESPRESSIONE_ARITMETICA)
-			operandiEspressioniAritmetiche.add(new BigDecimal(ctx.getText()));
+			operandiEspressioniAritmetiche.push(new BigDecimal(ctx.getText()));
 		else if (istruzione.peek()==Istruzione.ESPRESSIONE_COMPARAZIONE)
-			operandiEspressioniComparazione.add(new Driver(Double.parseDouble(ctx.getText())));
+			operandiEspressioniComparazione.push(new Driver(Double.parseDouble(ctx.getText())));
 	}
 	
 	@Override
 	public void enterValoreStringa(ValoreStringaContext ctx) {
-		operandiEspressioniComparazione.add(new Driver("dr:VALORE_STRINGA",ctx.getText()));
+		istruzione.push(Istruzione.ESPRESSIONE_STRINGA);
+		operandiEspressioniStringa.push(ctx.getText());
 	}
 	
 	@Override
@@ -377,6 +397,8 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		if (!clausole.pop()) {
 			ctx.children.clear();
 			clausole.push(true);
+		} else {
+			clausole.push(false);
 		}
 	}
 	
