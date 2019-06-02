@@ -79,10 +79,13 @@ public class Driver {
 			this.valore = new BigDecimal(((Number)valore).floatValue());
 		} else if (valore instanceof Boolean) {
 			tipo = TipoDriver.BOOLEANO;
-			if (((Boolean)valore).booleanValue()) 
-				this.valore = new BigDecimal(1); 
-			else 
+			if (((Boolean)valore).booleanValue()) { 
+				this.valore = new BigDecimal(1);
+				valoreBooleano = true;
+			} else { 
 				this.valore = new BigDecimal(0);
+				valoreBooleano = false;
+			}
 		} else if (valore instanceof String) {
 			tipo = TipoDriver.STRINGA;
 			this.valoreStringa = valore.toString();

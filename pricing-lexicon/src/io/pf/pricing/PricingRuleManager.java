@@ -54,9 +54,10 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 	private Stack<Driver> operandiEspressioniComparazione = new Stack<>();
 	private Stack<Boolean> clausole = new Stack<>();
 	
-	private StringBuffer giro = new StringBuffer();
+	private StringBuffer giro = new StringBuffer("\n\nSOLUZIONE: ");
 	
 	public PricingRuleManager(Map<String, Object> drivers) {
+		log.info("INPUT: "+drivers.toString());
 		this.drivers = new HashMap<String, Driver>();
 		drivers.forEach((k,v) -> this.drivers.put(k, new Driver("dr:"+k,v)));
 	}
@@ -357,8 +358,8 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
 		operandiEspressioniLogiche.push(operandoSinistra && operandoDestra);
 		log.fine("exitEspressioneLogicaAnd:"+operandiEspressioniLogiche.peek());
-		giro.append(ctx.getText()+": "+operandiEspressioniLogiche.peek());
-		giro.append(System.lineSeparator());
+		//giro.append(ctx.getText()+": "+operandiEspressioniLogiche.peek());
+		//giro.append(System.lineSeparator());
 		istruzione.pop();
 	}
 
@@ -372,8 +373,8 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
 		operandiEspressioniLogiche.push(operandoSinistra || operandoDestra);
 		log.fine("exitEspressioneLogicaOr:"+operandiEspressioniLogiche.peek());
-		giro.append(ctx.getText()+": "+operandiEspressioniLogiche.peek());
-		giro.append(System.lineSeparator());
+		//giro.append(ctx.getText()+": "+operandiEspressioniLogiche.peek());
+		//giro.append(System.lineSeparator());
 		istruzione.pop();
 	}
 
@@ -535,11 +536,16 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 	public void exitRegole(RegoleContext ctx) {
 		if (!istruzione.isEmpty())
 			log.warning(istruzione.toString());
+		log.info("OUTPUT: "+output.toString());
+		log.info(getSoluzione());
 	}
 
 
 	public Map<String, String> getOutput() {
-		output.put("\n\nSOLUZIONE", giro.toString());
 		return output;
+	}
+	
+	public String getSoluzione() {
+		return giro.toString();
 	}
 }

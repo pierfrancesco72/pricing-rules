@@ -32,13 +32,9 @@ public class App2 {
 			drivers.put("POSSESSO_ACCREDITO_PENSIONE", Boolean.TRUE);
 			drivers.put("CLIENTE.ETA", 24);
 			
-			log.info("INPUT:"+drivers.toString());
-			
 			ParseTreeWalker walker = new ParseTreeWalker();
 			PricingRuleManager listener = new PricingRuleManager(drivers);
 			walker.walk(listener, tree);
-			
-			log.info("OUTPUT:"+listener.getOutput().toString());
 			
 		} catch (Exception e) {
 			log.severe(ExceptionUtils.getStackTrace(e));
