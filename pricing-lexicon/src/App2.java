@@ -1,11 +1,13 @@
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import io.pf.pricing.PricingRuleManager;
 import io.pf.pricing.antlr4.PricingRulesLexer;
@@ -13,10 +15,12 @@ import io.pf.pricing.antlr4.PricingRulesParser;
 
 public class App2 {
 
+	private static final Logger log = Logger.getLogger(App2.class.getName());
 	
 	public static void main(String[] args) {
 		
 		try {
+			
 			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing1.rule", StandardCharsets.UTF_8));
 			CommonTokenStream tokens = new CommonTokenStream(lessico);
 			PricingRulesParser parser = new PricingRulesParser(tokens);
@@ -28,14 +32,16 @@ public class App2 {
 			drivers.put("POSSESSO_ACCREDITO_PENSIONE", Boolean.TRUE);
 			drivers.put("CLIENTE.ETA", 24);
 			
+			log.info("INPUT:"+drivers.toString());
+			
 			ParseTreeWalker walker = new ParseTreeWalker();
 			PricingRuleManager listener = new PricingRuleManager(drivers);
 			walker.walk(listener, tree);
 			
-			System.out.println(listener.getOutput().toString());
+			log.info("OUTPUT:"+listener.getOutput().toString());
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.severe(ExceptionUtils.getStackTrace(e));
 		}
 	}
 	

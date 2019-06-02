@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import io.pf.pricing.antlr4.PricingRulesBaseListener;
@@ -17,6 +18,7 @@ import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaAddContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaDivContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaEntitaNumericaContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaMulContext;
+import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaParensContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneAritmeticaSubContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneComparazioneInParentesiContext;
 import io.pf.pricing.antlr4.PricingRulesParser.EspressioneComparazioneOperandiContext;
@@ -38,7 +40,7 @@ import io.pf.pricing.model.Qualificazione;
 
 public class PricingRuleManager extends PricingRulesBaseListener {
 	
-private static final Logger log = Logger.getLogger(PricingRuleManager.class.getName());
+	private static final Logger log = Logger.getLogger(PricingRuleManager.class.getName());
 	
 	private enum Istruzione{ASSEGNAZIONE, ESPRESSIONE_STRINGA, ESPRESSIONE_ARITMETICA, ESPRESSIONE_LOGICA, ESPRESSIONE_COMPARAZIONE}
 	private Stack<Istruzione> istruzione = new Stack<>();
@@ -62,17 +64,18 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void enterAssegnazione(AssegnazioneContext ctx) {
-		log.fine(ctx.getText());
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ASSEGNAZIONE);
-		giro.append(ctx.getText());
-		giro.append(System.lineSeparator());
 	}
 	
 	@Override
 	public void exitAssegnazione(AssegnazioneContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		Driver operando = operandiAssegnazione.pop();
 		
-		if (istruzione != null && !istruzione.isEmpty() && istruzione.peek()==Istruzione.ESPRESSIONE_STRINGA) {
+		if (!operandiEspressioniStringa.isEmpty()) {
 			istruzione.pop();
 			String stringa = operandiEspressioniStringa.pop();
 			stringa = stringa.substring(1, stringa.length()-1);
@@ -104,30 +107,72 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 				operando.setValore(operando.getValore().divide(risultato));
 				break;
 			case PricingRulesLexer.AND_ASSIGN: 
-				System.out.println(ctx.getText());
+				log.warning("AND_ASSIGN ancora non gestito!" );
 				break;
 			case PricingRulesLexer.OR_ASSIGN: 
-				System.out.println(ctx.getText());
+				log.warning("OR_ASSIGN ancora non gestito!" );
 				break;
 			case PricingRulesLexer.MOD_ASSIGN: 
-				System.out.println(ctx.getText());
+				log.warning("MOD_ASSIGN ancora non gestito!" );
 				break;
 			case PricingRulesLexer.XOR_ASSIGN: 
-				System.out.println(ctx.getText());
-				break;
-			default:
-				System.out.println("default "+ctx.getText());
+				log.warning("XOR_ASSIGN ancora non gestito!" );
 				break;
 			}
 		}
-		giro.append(operando);
-		System.out.println(operando);
-		
+		giro.append(ctx.getText()+" "+operando.toString());
+		giro.append(System.lineSeparator());
+		log.fine(operando.toString());
+		istruzione.pop();
+	}
+	
+	
+	@Override
+	public void enterEspressioneAritmeticaAdd(EspressioneAritmeticaAddContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
+	}
+	
+	@Override
+	public void enterEspressioneAritmeticaSub(EspressioneAritmeticaSubContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
+	}
+	
+	@Override
+	public void enterEspressioneAritmeticaMul(EspressioneAritmeticaMulContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
+	}
+	
+	@Override
+	public void enterEspressioneAritmeticaDiv(EspressioneAritmeticaDivContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
+	}
+	
+	@Override
+	public void enterEspressioneAritmeticaEntitaNumerica(EspressioneAritmeticaEntitaNumericaContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
+	}
+	
+	@Override
+	public void enterEspressioneAritmeticaParens(EspressioneAritmeticaParensContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
 	}
 	
 	@Override
 	public void enterDriver(DriverContext ctx) {
-		log.fine(ctx.getText());
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		Driver driver = new Driver(ctx.getText());
 		
 		if (!drivers.containsKey(driver.getCodice())) {
@@ -137,13 +182,11 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		driver = drivers.get(driver.getCodice());
 		
 		gestisciDriver(driver);
-		
-		giro.append(driver);
 	}
 	
 	private void gestisciDriver(Driver driver) {
 		
-		switch (istruzione.pop()) {
+		switch (istruzione.peek()) {
 		case ASSEGNAZIONE:
 			operandiAssegnazione.push(driver);
 			break;
@@ -169,6 +212,8 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void enterCondizione(CondizioneContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		Driver driver = new Driver(ctx.codiceCondizione().getText(), ctx.codiceComponente().getText());
 		if (ctx.servizio() != null) {
 			driver.getCondizione().setServizio(ctx.servizio().getText());
@@ -184,128 +229,188 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		driver.setValore(driver.getCondizione().caricaValore());
 		
 		gestisciDriver(driver);
-		
-		giro.append(driver);
 	}
 	
 	@Override
-	public void enterEspressioneAritmeticaEntitaNumerica(EspressioneAritmeticaEntitaNumericaContext ctx) {
-		istruzione.push(Istruzione.ESPRESSIONE_ARITMETICA);
+	public void exitEspressioneAritmeticaEntitaNumerica(EspressioneAritmeticaEntitaNumericaContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.pop();
 	}
 	
 	@Override
 	public void exitEspressioneAritmeticaAdd(EspressioneAritmeticaAddContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		BigDecimal somma = operandiEspressioniAritmetiche.pop();
 		somma = somma.add(operandiEspressioniAritmetiche.pop());
 		operandiEspressioniAritmetiche.push(somma);
+		istruzione.pop();
 	}
 	
 	@Override
 	public void exitEspressioneAritmeticaSub(EspressioneAritmeticaSubContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		BigDecimal sottraendo = operandiEspressioniAritmetiche.pop();
 		BigDecimal minuendo = operandiEspressioniAritmetiche.pop();
 		minuendo = minuendo.subtract(sottraendo);
 		operandiEspressioniAritmetiche.push(minuendo);
+		istruzione.pop();
 	}
 	
 	@Override
 	public void exitEspressioneAritmeticaMul(EspressioneAritmeticaMulContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		BigDecimal prodotto = operandiEspressioniAritmetiche.pop();
 		prodotto = prodotto.multiply(operandiEspressioniAritmetiche.pop());
 		operandiEspressioniAritmetiche.push(prodotto);
+		istruzione.pop();
 	}
 	
 	@Override
 	public void exitEspressioneAritmeticaDiv(EspressioneAritmeticaDivContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		BigDecimal divisore = operandiEspressioniAritmetiche.pop();
 		BigDecimal dividendo = operandiEspressioniAritmetiche.pop();
 		
 		operandiEspressioniAritmetiche.push(dividendo.divide(divisore));
+		istruzione.pop();
 	}
 	
-	
+	@Override
+	public void exitEspressioneAritmeticaParens(EspressioneAritmeticaParensContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.pop();
+	}
 	
 	@Override
 	public void enterRegola(RegolaContext ctx) {
-		giro.append("REGOLA:"+ctx.getText());
-		giro.append(System.lineSeparator());
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 	}
 	
 	@Override
 	public void exitRegola(RegolaContext ctx) {
-		// TODO Auto-generated method stub
-		super.exitRegola(ctx);
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 	}
 	
 	@Override
 	public void enterEspressioneLogicaEntitaComparazione(EspressioneLogicaEntitaComparazioneContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ESPRESSIONE_LOGICA);
 	}
 	
 	@Override
 	public void enterEspressioneLogicaInParentesi(EspressioneLogicaInParentesiContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_LOGICA);
+	}
+	
+	@Override
+	public void enterEspressioneLogicaAnd(EspressioneLogicaAndContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.push(Istruzione.ESPRESSIONE_LOGICA);
+	}
+	
+	@Override
+	public void enterEspressioneLogicaOr(EspressioneLogicaOrContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ESPRESSIONE_LOGICA);
 	}
 	
 	@Override
 	public void enterEspressioneComparazioneInParentesi(EspressioneComparazioneInParentesiContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ESPRESSIONE_COMPARAZIONE);
 	}
 	
 	@Override
-	public void enterEspressioneLogicaAnd(EspressioneLogicaAndContext ctx) {
-		// TODO Auto-generated method stub
-		super.enterEspressioneLogicaAnd(ctx);
-	}
-	
-	@Override
-	public void exitEspressioneLogicaAnd(EspressioneLogicaAndContext ctx) {
-		Boolean operandoDestra = operandiEspressioniLogiche.pop();
-		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
-		operandiEspressioniLogiche.push(operandoSinistra && operandoDestra);
-		log.fine("exitEspressioneLogicaAnd:"+operandiEspressioniLogiche.peek());
-		giro.append("Risultato Espressione Logica AND:"+operandiEspressioniLogiche.peek());
-		giro.append(System.lineSeparator());
-	}
-
-	@Override
-	public void enterEspressioneLogicaOr(EspressioneLogicaOrContext ctx) {
-		istruzione.push(Istruzione.ESPRESSIONE_LOGICA);
-	}
-	
-	@Override
-	public void exitEspressioneLogicaOr(EspressioneLogicaOrContext ctx) {
-		Boolean operandoDestra = operandiEspressioniLogiche.pop();
-		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
-		operandiEspressioniLogiche.push(operandoSinistra || operandoDestra);
-		log.fine("exitEspressioneLogicaOr:"+operandiEspressioniLogiche.peek());
-		giro.append("Risultato Espressione Logica OR:"+operandiEspressioniLogiche.peek());
-		giro.append(System.lineSeparator());
-	}
-	
-	
-	
-	@Override
 	public void enterEspressioneComparazioneOperandi(EspressioneComparazioneOperandiContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ESPRESSIONE_COMPARAZIONE);
 	}
 	
 	@Override
 	public void enterEspressioneLogicaEspressioneComparazione(EspressioneLogicaEspressioneComparazioneContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ESPRESSIONE_COMPARAZIONE);
 	}
+
 	
+	@Override
+	public void exitEspressioneLogicaAnd(EspressioneLogicaAndContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		Boolean operandoDestra = operandiEspressioniLogiche.pop();
+		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
+		operandiEspressioniLogiche.push(operandoSinistra && operandoDestra);
+		log.fine("exitEspressioneLogicaAnd:"+operandiEspressioniLogiche.peek());
+		giro.append(ctx.getText()+": "+operandiEspressioniLogiche.peek());
+		giro.append(System.lineSeparator());
+		istruzione.pop();
+	}
+
+
+	
+	@Override
+	public void exitEspressioneLogicaOr(EspressioneLogicaOrContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		Boolean operandoDestra = operandiEspressioniLogiche.pop();
+		Boolean operandoSinistra = operandiEspressioniLogiche.pop();
+		operandiEspressioniLogiche.push(operandoSinistra || operandoDestra);
+		log.fine("exitEspressioneLogicaOr:"+operandiEspressioniLogiche.peek());
+		giro.append(ctx.getText()+": "+operandiEspressioniLogiche.peek());
+		giro.append(System.lineSeparator());
+		istruzione.pop();
+	}
+
+	
+	@Override
+	public void exitEspressioneLogicaEntitaComparazione(EspressioneLogicaEntitaComparazioneContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.pop();;
+	}
+	
+	@Override
+	public void exitEspressioneLogicaInParentesi(EspressioneLogicaInParentesiContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.pop();
+	}
 	
 	@Override
 	public void exitEspressioneLogicaEspressioneComparazione(EspressioneLogicaEspressioneComparazioneContext ctx) {
-		
-		
-		
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.pop();
+	}
+	
+	@Override
+	public void exitEspressioneComparazioneInParentesi(EspressioneComparazioneInParentesiContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
+		istruzione.pop();
 	}
 	
 	
 	@Override
 	public void exitEspressioneComparazioneOperandi(EspressioneComparazioneOperandiContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		
 		Driver operando2 = operandiEspressioniComparazione.pop();
 		Driver operando1 = operandiEspressioniComparazione.pop();
@@ -348,56 +453,60 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 		}
 		
 		operandiEspressioniLogiche.push(risultato);
-		giro.append("Risultato Espressione Logica:"+risultato);
+		giro.append(ctx.getText()+": "+risultato);
 		giro.append(System.lineSeparator());
+		istruzione.pop();
 	}
 	
 	@Override
 	public void enterClausola(ClausolaContext ctx) {
-		giro.append(ctx.getText());
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 	}
 	
 	@Override
 	public void exitClausola(ClausolaContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		Boolean clausola = operandiEspressioniLogiche.pop();
 		clausole.push(clausola);
-		/*if (clausola)
-			enterBlock(null);
-		else
-			enterElseblock(null);
-		*/
+
 		log.fine("exitClausola:"+clausole.peek());
 		
-		giro.append("Risultato Clausola:"+clausola);
+		giro.append(ctx.getText()+": "+clausola);
 		giro.append(System.lineSeparator());
 	}
 	
 	
 	@Override
-	public void enterValoreBooleano(ValoreBooleanoContext ctx) {
+	public void exitValoreBooleano(ValoreBooleanoContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		operandiEspressioniComparazione.push(new Driver(Boolean.valueOf(ctx.getText())));
-		
-		istruzione.pop();
 	}
 	
 	@Override
-	public void enterValoreNumerico(ValoreNumericoContext ctx) {
+	public void exitValoreNumerico(ValoreNumericoContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		if (istruzione.peek()==Istruzione.ESPRESSIONE_ARITMETICA)
 			operandiEspressioniAritmetiche.push(new BigDecimal(ctx.getText()));
 		else if (istruzione.peek()==Istruzione.ESPRESSIONE_COMPARAZIONE)
 			operandiEspressioniComparazione.push(new Driver(Double.parseDouble(ctx.getText())));
-		
-		istruzione.pop();
 	}
 	
 	@Override
-	public void enterValoreStringa(ValoreStringaContext ctx) {
+	public void exitValoreStringa(ValoreStringaContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		istruzione.push(Istruzione.ESPRESSIONE_STRINGA);
 		operandiEspressioniStringa.push(ctx.getText());
 	}
 	
 	@Override
 	public void enterBlock(BlockContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		if (!clausole.pop()) {
 			ctx.children.clear();
 			clausole.push(true);
@@ -408,6 +517,8 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void exitOutput(OutputContext ctx) {
+		if (log.isLoggable(Level.FINEST))
+			log.finest(ctx.getText());
 		String[] drvout = ctx.getText().substring(4,ctx.getText().length()-1).split("\\,");
 		
 		output = new HashMap<>();
@@ -422,12 +533,13 @@ private static final Logger log = Logger.getLogger(PricingRuleManager.class.getN
 	
 	@Override
 	public void exitRegole(RegoleContext ctx) {
-		// TODO Auto-generated method stub
-		super.exitRegole(ctx);
+		if (!istruzione.isEmpty())
+			log.warning(istruzione.toString());
 	}
 
 
 	public Map<String, String> getOutput() {
+		output.put("\n\nSOLUZIONE", giro.toString());
 		return output;
 	}
 }
