@@ -1,5 +1,7 @@
 package io.pf.pricing.model;
 
+import java.sql.SQLException;
+
 import io.pf.pricing.cache.ConvenzioneCache;
 import io.pf.pricing.cache.OggettoRapportoCache;
 import io.pf.pricing.cache.ServizioCache;
@@ -82,9 +84,9 @@ public class Condizione {
 		return servizio;
 	}
 
-	public void setServizio(String servizio) {
-		this.servizio = servizio;
-		puntatore.setIdServizio(ServizioCache.getId(servizio));
+	public void setServizio(String codiceServizio) throws SQLException {
+		this.servizio = codiceServizio;
+		puntatore.setIdServizio(ServizioCache.getId(codiceServizio));
 	}
 
 	@Override
