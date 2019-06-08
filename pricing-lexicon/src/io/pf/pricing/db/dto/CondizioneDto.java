@@ -9,10 +9,12 @@ public class CondizioneDto implements RowMapper<CondizioneDto> {
 
 	private String codice;
 	private Integer id;
+	private Integer idServizio;
 	
 	public CondizioneDto() {}
 	
-	public CondizioneDto(String codice, Integer id) {
+	public CondizioneDto(String codice, Integer id, Integer idServizio) {
+		this.idServizio = idServizio;
 		this.codice = codice;
 		this.id = id;
 	}
@@ -22,6 +24,7 @@ public class CondizioneDto implements RowMapper<CondizioneDto> {
 		CondizioneDto dto = new CondizioneDto();
 		dto.setCodice(rs.getString(1));
 		dto.setId(rs.getInt(2));
+		dto.setIdServizio(rs.getInt(3));
 		return dto;
 	}
 
@@ -39,6 +42,14 @@ public class CondizioneDto implements RowMapper<CondizioneDto> {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Integer getIdServizio() {
+		return idServizio;
+	}
+
+	public void setIdServizio(Integer idServizio) {
+		this.idServizio = idServizio;
 	}
 
 
