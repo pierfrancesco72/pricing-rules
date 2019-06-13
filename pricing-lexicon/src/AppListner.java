@@ -13,15 +13,15 @@ import io.pf.pricing.PricingRuleManager;
 import io.pf.pricing.antlr4.PricingRulesLexer;
 import io.pf.pricing.antlr4.PricingRulesParser;
 
-public class App2 {
+public class AppListner {
 
-	private static final Logger log = Logger.getLogger(App2.class.getName());
+	private static final Logger log = Logger.getLogger(AppListner.class.getName());
 	
 	public static void main(String[] args) {
 		
 		try {
 			
-			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing1.rule", StandardCharsets.UTF_8));
+			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing3.rule", StandardCharsets.UTF_8));
 			CommonTokenStream tokens = new CommonTokenStream(lessico);
 			PricingRulesParser parser = new PricingRulesParser(tokens);
 			
@@ -30,6 +30,7 @@ public class App2 {
 			Map<String, Object> drivers = new HashMap<>();
 			drivers.put("POSSESSO_TELEPAS", Boolean.TRUE);
 			drivers.put("POSSESSO_ACCREDITO_PENSIONE", Boolean.TRUE);
+			drivers.put("BONUS", Boolean.TRUE);
 			drivers.put("CLIENTE.ETA", 24);
 			
 			ParseTreeWalker walker = new ParseTreeWalker();

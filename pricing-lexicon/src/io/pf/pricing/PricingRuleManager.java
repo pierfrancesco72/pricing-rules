@@ -1,6 +1,7 @@
 package io.pf.pricing;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -277,7 +278,7 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 		BigDecimal divisore = operandiEspressioniAritmetiche.pop();
 		BigDecimal dividendo = operandiEspressioniAritmetiche.pop();
 		
-		operandiEspressioniAritmetiche.push(dividendo.divide(divisore));
+		operandiEspressioniAritmetiche.push(dividendo.divide(divisore,5, RoundingMode.HALF_DOWN));
 		istruzione.pop();
 	}
 	

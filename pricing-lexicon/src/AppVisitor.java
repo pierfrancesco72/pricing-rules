@@ -13,7 +13,7 @@ import io.pf.pricing.antlr4.PricingRulesLexer;
 import io.pf.pricing.antlr4.PricingRulesParser;
 import io.pf.pricing.model.Driver;
 
-public class App {
+public class AppVisitor {
 
 	
 	public static void main(String[] args) {
