@@ -2,11 +2,14 @@ package io.pf.pricing;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import io.pf.pricing.antlr4.PricingRulesBaseListener;
 import io.pf.pricing.antlr4.PricingRulesLexer;
@@ -216,16 +219,22 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 	public void enterCondizione(CondizioneContext ctx) {
 		if (log.isLoggable(Level.FINEST))
 			log.finest(ctx.getText());
-		Driver driver = new Driver(ctx.codiceCondizione().getText(), ctx.codiceComponente().getText());
-		if (ctx.servizio() != null) {
-			driver.getCondizione().setServizio(ctx.servizio().getText());
-		}
 		
-		if (ctx.qualificazione() != null) {
-			driver.getCondizione().setQualificazione(new Qualificazione(ctx.qualificazione().getText()));
-		}
-		if (ctx.listino() != null) {
-			driver.getCondizione().setListino(new Listino(ctx.listino().getText()));
+		Driver driver = new Driver(ctx.codiceCondizione().getText(), ctx.codiceComponente().getText());
+		try {
+			if (ctx.servizio() != null) {
+				driver.getCondizione().setServizio(ctx.servizio().getText());
+			}
+			
+			if (ctx.qualificazione() != null) {
+				driver.getCondizione().setQualificazione(new Qualificazione(ctx.qualificazione().getText()));
+			}
+			if (ctx.listino() != null) {
+				driver.getCondizione().setListino(new Listino(ctx.listino().getText()));
+			}
+		} catch (SQLException e) {
+			log.severe(ExceptionUtils.getStackTrace(e));
+			throw new RuntimeException(e.getMessage());
 		}
 		
 		driver.setValore(driver.getCondizione().caricaValore());
