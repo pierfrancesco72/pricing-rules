@@ -1,5 +1,7 @@
 package io.pf.pricing.model;
 
+import java.sql.SQLException;
+
 import io.pf.pricing.cache.ComponenteCache;
 import io.pf.pricing.cache.CondizioneCache;
 
@@ -22,14 +24,14 @@ public class CondizionePuntatore {
 		idOggettoRapporto = 0;
 	}
 	
-	public CondizionePuntatore(String codiceCondizione) {
+	public CondizionePuntatore(String codiceCondizione) throws SQLException {
 		this();
 		IdCondizione idCdz = CondizioneCache.getId(codiceCondizione);
 		idCondizione = idCdz.getIdCondizione();
 		idServizio = idCdz.getIdServizioDefault();
 	}
 	
-	public CondizionePuntatore(String codiceCondizione, String codiceComponente) {
+	public CondizionePuntatore(String codiceCondizione, String codiceComponente) throws SQLException  {
 		this(codiceCondizione);
 		IdComponente idCmp = ComponenteCache.getId(codiceComponente);
 		idComponente = idCmp.getIdComponente();

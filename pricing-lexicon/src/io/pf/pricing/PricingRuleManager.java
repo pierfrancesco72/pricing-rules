@@ -220,8 +220,11 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 		if (log.isLoggable(Level.FINEST))
 			log.finest(ctx.getText());
 		
-		Driver driver = new Driver(ctx.codiceCondizione().getText(), ctx.codiceComponente().getText());
+		Driver driver = null;
 		try {
+			
+			driver = new Driver(ctx.codiceCondizione().getText(), ctx.codiceComponente().getText());
+			
 			if (ctx.servizio() != null) {
 				driver.getCondizione().setServizio(ctx.servizio().getText());
 			}

@@ -2,6 +2,7 @@ package io.pf.pricing.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 
 public class Operando {
 	
@@ -50,7 +51,7 @@ public class Operando {
 	 * @param codiceCondizione
 	 * @param codiceComponente
 	 */
-	public Operando (String codiceCondizione, String codiceComponente) {
+	public Operando (String codiceCondizione, String codiceComponente) throws SQLException  {
 		
 		this.codice = codiceCondizione + ":" + codiceComponente;
 		
@@ -65,7 +66,7 @@ public class Operando {
 	 * @param codiceComponente
 	 * @param qualificazione
 	 */
-	public Operando (String codiceCondizione, String codiceComponente, String strQualificazione) {
+	public Operando (String codiceCondizione, String codiceComponente, String strQualificazione) throws SQLException  {
 		this(codiceCondizione, codiceComponente);
 		Qualificazione q = new Qualificazione(strQualificazione);
 		condizione.setQualificazione(q);

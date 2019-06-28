@@ -20,13 +20,13 @@ public class Condizione {
 	
 	
 	
-	public Condizione(String codice, String componente) {
+	public Condizione(String codice, String componente) throws SQLException  {
 		puntatore = new CondizionePuntatore(codice, componente);
 		this.codiceCondizione = codice;
 		this.codiceComponente = componente;
 	}
 	
-	public Condizione(String codice, String componente, String strQualificazione) {
+	public Condizione(String codice, String componente, String strQualificazione) throws SQLException  {
 		this(codice, componente);
 		setQualificazione(new Qualificazione(strQualificazione));
 	}

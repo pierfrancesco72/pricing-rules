@@ -26,5 +26,16 @@ public class IdCondizione {
 		this.idServizioDefault = idServizioDefault;
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("IdCondizione [idCondizione=");
+		builder.append(idCondizione);
+		builder.append(", idServizioDefault=");
+		builder.append(idServizioDefault);
+		builder.append("]");
+		return builder.toString();
+	}
+
 
 }

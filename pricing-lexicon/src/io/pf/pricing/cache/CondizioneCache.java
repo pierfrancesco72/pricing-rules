@@ -1,10 +1,13 @@
 package io.pf.pricing.cache;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 
+import io.pf.pricing.db.CondizioneDao;
+import io.pf.pricing.db.dto.CondizioneDto;
 import io.pf.pricing.model.IdCondizione;
 
 public class CondizioneCache {
@@ -15,28 +18,33 @@ public class CondizioneCache {
 		
 	}
 	
-	private static Cache<String, IdCondizione> getCache() {
+	private static Cache<String, IdCondizione> getCache() throws SQLException {
 		if (cache==null) {
 			cache = Cache2kBuilder.of(String.class, IdCondizione.class)
 					.eternal(true)
 			        .build();
-			//TODO riempire la cache dal DB con tutte le confizioni della tabella C6TBCDZI
+			
+			List<CondizioneDto> condizioni = CondizioneDao.getCondizioni();
+			
+			for (CondizioneDto cdz : condizioni) {
+				cache.put(cdz.getCodice(), new IdCondizione(cdz.getId(), cdz.getIdServizio()));
+			}
+			
 		}
 		return cache;
 	}
 	
 
-	public static IdCondizione getId(String codiceCondizione) {
+	public static IdCondizione getId(String codiceCondizione) throws SQLException {
 		IdCondizione idCondizione = CondizioneCache.getCache().peek(codiceCondizione);
 		if (idCondizione==null) {
-			//TODO prelevare da DB l'idCondizione
-			//SELECT IDCDZ FROM C6TBCDZI WHERE DESCRBR = <codiceCondzione>;
+			CondizioneDto cdz = CondizioneDao.getCondizione(codiceCondizione);
 			
 			// per ora simulo un codice finto
-			Integer idCdz = ThreadLocalRandom.current().nextInt(1, 3001);
-			Integer cdserint = 1;
+			//Integer idCdz = ThreadLocalRandom.current().nextInt(1, 3001);
+			//Integer cdserint = 1;
 			
-			idCondizione = new IdCondizione(idCdz, cdserint);
+			idCondizione = new IdCondizione(cdz.getId(), cdz.getIdServizio());
 			
 			cache.put(codiceCondizione, idCondizione);
 		}

@@ -21,7 +21,7 @@ public class AppListner {
 		
 		try {
 			
-			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing3.rule", StandardCharsets.UTF_8));
+			PricingRulesLexer lessico = new PricingRulesLexer(CharStreams.fromFileName("examples/pricing2.rule", StandardCharsets.UTF_8));
 			CommonTokenStream tokens = new CommonTokenStream(lessico);
 			PricingRulesParser parser = new PricingRulesParser(tokens);
 			
