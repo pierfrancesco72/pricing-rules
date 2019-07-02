@@ -3,26 +3,32 @@ package io.pf.pricing.db;
 import java.sql.SQLException;
 import java.util.List;
 
-import io.pf.pricing.db.dto.CondizioneDto;
+import org.apache.commons.configuration2.Configuration;
+
+import io.pf.pricing.db.dto.ComponenteDto;
+import io.pf.pricing.utils.ConfigUtils;
 
 
 public class ComponenteDao {
+	
+	private static Configuration conf = ConfigUtils.getProperties();
 
 	private ComponenteDao() {
 		
 	}
 	
-	public static List<CondizioneDto> getComponenti() throws SQLException {
+	public static List<ComponenteDto> getComponenti() throws SQLException {
 		
-		return DataSourceCondizioni.getJdbc().query("select ?? from C6TBCZCO C1 inner join C6TBCOMP C2", new CondizioneDto());
+		return DataSourceCondizioni.getJdbc()
+				.query(conf.getString("db.componenti"), new ComponenteDto());
 	}
 	
 	
-	public static CondizioneDto getComponentee(String codiceComponente) throws SQLException {
+	public static ComponenteDto getComponente(String codiceComponente, Integer idCondizione) throws SQLException {
 		
 		return DataSourceCondizioni.getJdbc()
-				.queryForObject("select C1.dscdzbr, C1.idcompo, C2.interi, C2.decimali from C6TBCZCO C1 inner join C6TBCOMP C2 on (C1.tipocompo=C2.tipocomp) where dsccompo = :codiceComponente", 
-						CondizioneDto.class, codiceComponente);
+				.queryForObject(conf.getString("db.componente"), 
+						new ComponenteDto(), idCondizione, codiceComponente);
 	}
 
 }

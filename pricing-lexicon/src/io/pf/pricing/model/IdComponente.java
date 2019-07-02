@@ -1,32 +1,46 @@
 package io.pf.pricing.model;
 
-public class IdComponente {
-	
-	private Integer idComponente;
-	private Integer interi;
+
+public abstract class IdComponente {
+	public enum TipoComponente {
+		NUMERICA("N"), STRINGA("A");
+		
+		private String valoreDb;  
+		private TipoComponente(String val) {
+			valoreDb = val;
+		}
+		
+		public String getValoreDb() {
+	        return valoreDb;
+	    }
+		
+		@Override
+	    public String toString() {
+	        return this.getValoreDb();
+	    }
+		
+		public static TipoComponente daDB(String valoreDb) {
+	        for (TipoComponente tc : TipoComponente.values()) {
+	            if (tc.valoreDb.equalsIgnoreCase(valoreDb)) {
+	                return tc;
+	            }
+	        }
+	        return null;
+	    }
+	}
+	private Integer id;
+	private TipoComponente tipo;
+	private Integer lunghezza;
 	private Integer decimali;
 	
+	public IdComponente() {}
+	
 	public IdComponente(Integer idCompo, Integer interi, Integer decimali) {
-		idComponente = idCompo;
-		this.interi = interi;
+		id = idCompo;
+		this.lunghezza = interi;
 		this.decimali = decimali;
 	}
-
-	public Integer getIdComponente() {
-		return idComponente;
-	}
-
-	public void setIdComponente(Integer idComponente) {
-		this.idComponente = idComponente;
-	}
-
-	public Integer getInteri() {
-		return interi;
-	}
-
-	public void setInteri(Integer interi) {
-		this.interi = interi;
-	}
+	
 
 	public Integer getDecimali() {
 		return decimali;
@@ -34,6 +48,42 @@ public class IdComponente {
 
 	public void setDecimali(Integer decimali) {
 		this.decimali = decimali;
+	}
+
+
+
+	public Integer getId() {
+		return id;
+	}
+
+
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+
+
+	public TipoComponente getTipo() {
+		return tipo;
+	}
+
+
+
+	public void setTipo(TipoComponente tipo) {
+		this.tipo = tipo;
+	}
+
+
+
+	public Integer getLunghezza() {
+		return lunghezza;
+	}
+
+
+
+	public void setLunghezza(Integer lunghezza) {
+		this.lunghezza = lunghezza;
 	}
 	
 }

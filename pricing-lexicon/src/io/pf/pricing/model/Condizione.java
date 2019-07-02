@@ -1,6 +1,7 @@
 package io.pf.pricing.model;
 
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import io.pf.pricing.cache.ConvenzioneCache;
 import io.pf.pricing.cache.OggettoRapportoCache;
@@ -8,6 +9,8 @@ import io.pf.pricing.cache.ServizioCache;
 import io.pf.pricing.cache.ValoreCondizioneCache;
 
 public class Condizione {
+	
+	private static final Logger log = Logger.getLogger(Condizione.class.getName());
 	
 	private String servizio;
 	private String codiceCondizione;
@@ -21,6 +24,7 @@ public class Condizione {
 	
 	
 	public Condizione(String codice, String componente) throws SQLException  {
+		log.fine("Condizione da cercare: "+codice+", compoente: "+componente);
 		puntatore = new CondizionePuntatore(codice, componente);
 		this.codiceCondizione = codice;
 		this.codiceComponente = componente;

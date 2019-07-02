@@ -5,18 +5,19 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-public class CondizioneDto implements RowMapper<CondizioneDto> {
+import io.pf.pricing.model.IdCondizione;
+
+public class CondizioneDto extends IdCondizione implements RowMapper<CondizioneDto> {
 
 	private String codice;
-	private Integer id;
-	private Integer idServizio;
+
 	
 	public CondizioneDto() {}
 	
 	public CondizioneDto(String codice, Integer id, Integer idServizio) {
-		this.idServizio = idServizio;
 		this.codice = codice;
-		this.id = id;
+		setIdServizioDefault(idServizio);
+		setId(id);
 	}
 
 	@Override
@@ -24,7 +25,7 @@ public class CondizioneDto implements RowMapper<CondizioneDto> {
 		CondizioneDto dto = new CondizioneDto();
 		dto.setCodice(rs.getString(1));
 		dto.setId(rs.getInt(2));
-		dto.setIdServizio(rs.getInt(3));
+		dto.setIdServizioDefault(rs.getInt(3));
 		return dto;
 	}
 
@@ -36,22 +37,10 @@ public class CondizioneDto implements RowMapper<CondizioneDto> {
 		this.codice = codice;
 	}
 
-	public Integer getId() {
-		return id;
-	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public IdCondizione toCache() {
+		return (IdCondizione)this;
 	}
-
-	public Integer getIdServizio() {
-		return idServizio;
-	}
-
-	public void setIdServizio(Integer idServizio) {
-		this.idServizio = idServizio;
-	}
-
 
 	
 

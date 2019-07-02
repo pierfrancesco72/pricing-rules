@@ -1,10 +1,12 @@
 package io.pf.pricing.cache;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.sql.SQLException;
 
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 
+import io.pf.pricing.db.ComponenteDao;
+import io.pf.pricing.db.dto.ComponenteDto;
 import io.pf.pricing.model.IdComponente;
 
 public class ComponenteCache {
@@ -20,25 +22,24 @@ public class ComponenteCache {
 			cache = Cache2kBuilder.of(String.class, IdComponente.class)
 					.eternal(true)
 			        .build();
-			//TODO riempire la cache dal DB con tutte le confizioni della tabella C6TBCZCO
 		}
 		return cache;
 	}
 	
 
-	public static IdComponente getId(String codiceComponente) {
-		IdComponente idComponente = ComponenteCache.getCache().peek(codiceComponente);
+	public static IdComponente getId(String codiceComponente, Integer idCondizione) throws SQLException {
+		String key = idCondizione+":"+codiceComponente;
+		IdComponente idComponente = ComponenteCache.getCache().peek(key);
 		if (idComponente==null) {
-			//TODO prelevare da DB l'idCompoente
 			
-			//SELECT IDCOMPO FROM C6TBCZCO WHERE CDCOMPO = <codiceComponente>;
+			ComponenteDto dto = ComponenteDao.getComponente(codiceComponente, idCondizione);
 			
 			// per ora simulo un codice finto
-			Integer idCompo = ThreadLocalRandom.current().nextInt(1, 2001);
+			//Integer idCompo = ThreadLocalRandom.current().nextInt(1, 2001);
 			
-			idComponente = new IdComponente(idCompo, 15, 2);
+			idComponente = dto.toCache();
 			
-			cache.put(codiceComponente, idComponente);
+			cache.put(key, idComponente);
 		}
 		return idComponente;
 	}

@@ -5,22 +5,22 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-public class ComponenteDto implements RowMapper<ComponenteDto> {
+import io.pf.pricing.model.IdComponente;
 
-	private String codice;
-	private Integer id;
-	private Integer interi;
-	private Integer decimali;
+public class ComponenteDto extends IdComponente implements RowMapper<ComponenteDto> {
+
 	
-	public ComponenteDto() {}
+	private String codice;
+	
 	
 	@Override
 	public ComponenteDto mapRow(ResultSet rs, int arg1) throws SQLException {
 		ComponenteDto dto = new ComponenteDto();
 		dto.setCodice(rs.getString(1));
 		dto.setId(rs.getInt(2));
-		dto.setInteri(rs.getInt(3));
-		dto.setDecimali(rs.getInt(4));
+		dto.setTipo(TipoComponente.daDB(rs.getString(3)));
+		dto.setLunghezza(rs.getInt(4));
+		dto.setDecimali(rs.getInt(5));
 		return dto;
 	}
 
@@ -31,32 +31,10 @@ public class ComponenteDto implements RowMapper<ComponenteDto> {
 	public void setCodice(String codice) {
 		this.codice = codice;
 	}
-
-	public Integer getId() {
-		return id;
+	
+	public IdComponente toCache() {
+		return (IdComponente)this;
 	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	public Integer getInteri() {
-		return interi;
-	}
-
-	public void setInteri(Integer interi) {
-		this.interi = interi;
-	}
-
-	public Integer getDecimali() {
-		return decimali;
-	}
-
-	public void setDecimali(Integer decimali) {
-		this.decimali = decimali;
-	}
-
-
 	
 
 }

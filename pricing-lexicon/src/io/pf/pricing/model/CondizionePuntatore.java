@@ -27,14 +27,15 @@ public class CondizionePuntatore {
 	public CondizionePuntatore(String codiceCondizione) throws SQLException {
 		this();
 		IdCondizione idCdz = CondizioneCache.getId(codiceCondizione);
-		idCondizione = idCdz.getIdCondizione();
+		idCondizione = idCdz.getId();
 		idServizio = idCdz.getIdServizioDefault();
 	}
 	
 	public CondizionePuntatore(String codiceCondizione, String codiceComponente) throws SQLException  {
 		this(codiceCondizione);
-		IdComponente idCmp = ComponenteCache.getId(codiceComponente);
-		idComponente = idCmp.getIdComponente();
+		//IdCondizione idCdz = CondizioneCache.getId(codiceCondizione);
+		IdComponente idCmp = ComponenteCache.getId(codiceComponente, idCondizione);
+		idComponente = idCmp.getId();
 	}
 
 

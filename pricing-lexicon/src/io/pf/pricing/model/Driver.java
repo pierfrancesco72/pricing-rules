@@ -3,8 +3,11 @@ package io.pf.pricing.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class Driver {
+	
+	private static final Logger log = Logger.getLogger(Driver.class.getName());
 	
 	public enum TipoDriver {NUMERICO, STRINGA, BOOLEANO}
 	private TipoDriver tipo;

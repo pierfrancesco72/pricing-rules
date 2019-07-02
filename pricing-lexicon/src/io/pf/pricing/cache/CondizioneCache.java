@@ -27,7 +27,7 @@ public class CondizioneCache {
 			List<CondizioneDto> condizioni = CondizioneDao.getCondizioni();
 			
 			for (CondizioneDto cdz : condizioni) {
-				cache.put(cdz.getCodice(), new IdCondizione(cdz.getId(), cdz.getIdServizio()));
+				cache.put(cdz.getCodice(), cdz.toCache());
 			}
 			
 		}
@@ -44,7 +44,7 @@ public class CondizioneCache {
 			//Integer idCdz = ThreadLocalRandom.current().nextInt(1, 3001);
 			//Integer cdserint = 1;
 			
-			idCondizione = new IdCondizione(cdz.getId(), cdz.getIdServizio());
+			idCondizione = cdz.toCache();
 			
 			cache.put(codiceCondizione, idCondizione);
 		}
