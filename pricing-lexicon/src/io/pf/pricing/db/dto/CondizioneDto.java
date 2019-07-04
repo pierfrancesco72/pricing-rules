@@ -23,7 +23,7 @@ public class CondizioneDto extends IdCondizione implements RowMapper<CondizioneD
 	@Override
 	public CondizioneDto mapRow(ResultSet rs, int arg1) throws SQLException {
 		CondizioneDto dto = new CondizioneDto();
-		dto.setCodice(rs.getString(1));
+		dto.setCodice(rs.getString(1).trim());
 		dto.setId(rs.getInt(2));
 		dto.setIdServizioDefault(rs.getInt(3));
 		return dto;

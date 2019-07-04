@@ -5,11 +5,13 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import io.pf.pricing.model.ParametriList;
+
 public class QualificazioneDto implements RowMapper<QualificazioneDto> {
 
 	private Integer idServizio;
-	private String strQualificazione;
 	private Integer idQualificazione;
+	private ParametriList pars;
 	
 	public QualificazioneDto() {}
 	
@@ -17,9 +19,17 @@ public class QualificazioneDto implements RowMapper<QualificazioneDto> {
 	@Override
 	public QualificazioneDto mapRow(ResultSet rs, int arg1) throws SQLException {
 		QualificazioneDto dto = new QualificazioneDto();
-		dto.setStrQualificazione(rs.getString(1));
+		ParametriList pars = new ParametriList();
+		
+		dto.setIdQualificazione(rs.getInt(1));
 		dto.setIdServizio(rs.getInt(2));
-		dto.setIdQualificazione(rs.getInt(3));
+		dto.setPars(pars);
+		
+		for (int k=3; k<13; k++) {
+			String par = rs.getString(k);
+			if (par != null)
+				pars.add(par.trim());
+		}
 		return dto;
 	}
 
@@ -34,16 +44,6 @@ public class QualificazioneDto implements RowMapper<QualificazioneDto> {
 	}
 
 
-	public String getStrQualificazione() {
-		return strQualificazione;
-	}
-
-
-	public void setStrQualificazione(String strQualificazione) {
-		this.strQualificazione = strQualificazione;
-	}
-
-
 	public Integer getIdQualificazione() {
 		return idQualificazione;
 	}
@@ -53,7 +53,33 @@ public class QualificazioneDto implements RowMapper<QualificazioneDto> {
 		this.idQualificazione = idQualificazione;
 	}
 
+	public ParametriList toCache() {
+		return pars;
+	}
 
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("QualificazioneDto [idServizio=");
+		builder.append(idServizio);
+		builder.append(", idQualificazione=");
+		builder.append(idQualificazione);
+		builder.append(", pars=");
+		builder.append(pars);
+		builder.append("]");
+		return builder.toString();
+	}
+
+
+	public ParametriList getPars() {
+		return pars;
+	}
+
+
+	public void setPars(ParametriList pars) {
+		this.pars = pars;
+	}
 	
 
 }

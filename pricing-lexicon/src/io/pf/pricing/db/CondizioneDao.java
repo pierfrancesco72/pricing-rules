@@ -27,7 +27,7 @@ public class CondizioneDao {
 	public static CondizioneDto getCondizione(String codiceCondizione) throws SQLException {
 		
 		return DataSourceCondizioni.getJdbc()
-				.queryForObject(conf.getString("db.condizione"), CondizioneDto.class, codiceCondizione);
+				.queryForObject(conf.getString("db.condizione"), new CondizioneDto(), codiceCondizione);
 	}
 
 }

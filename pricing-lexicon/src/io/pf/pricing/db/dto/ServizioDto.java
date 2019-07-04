@@ -20,7 +20,7 @@ public class ServizioDto implements RowMapper<ServizioDto> {
 	@Override
 	public ServizioDto mapRow(ResultSet rs, int arg1) throws SQLException {
 		ServizioDto servizio = new ServizioDto();
-		servizio.setCodiceServizio(rs.getString(1));
+		servizio.setCodiceServizio(rs.getString(1).trim());
 		servizio.setIdServizio(rs.getInt(2));
 		return servizio;
 	}

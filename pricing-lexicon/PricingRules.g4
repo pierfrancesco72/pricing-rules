@@ -32,8 +32,8 @@ SERVIZIO:			[A-Z][A-Z]([A-Z])?;
 DRIVER:				DR CODICE;
 OUTPUT:				OUT CODICE (COMMA CODICE)* SEMI;
 
-fragment CODICE: 	[A-Z][A-Z_0-9]* ;
-fragment VALORE: 	CODICE;
+fragment CODICE: 	[A-Z][A-Z_0-9 ]* ;
+fragment VALORE: 	[A-Z_0-9 ]+;
 NUMERO: 			'-'?[0-9]+('.'[0-9]+)? ;
 STRINGA:			'"'[a-zA-Z_0-9]*'"';
 

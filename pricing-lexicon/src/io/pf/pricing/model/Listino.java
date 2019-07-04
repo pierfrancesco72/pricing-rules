@@ -1,5 +1,6 @@
 package io.pf.pricing.model;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import io.pf.pricing.cache.ListinoCache;
@@ -48,7 +49,7 @@ public class Listino {
 	
 
 	
-	public Integer getIdListino() {
+	public Integer getIdListino() throws SQLException {
 		if (idListino==null)
 			idListino = ListinoCache.getId(strListinoOrdinata);
 		return idListino;

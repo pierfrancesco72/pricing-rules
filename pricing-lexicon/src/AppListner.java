@@ -1,6 +1,10 @@
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.antlr.v4.runtime.CharStreams;
@@ -18,6 +22,18 @@ public class AppListner {
 	private static final Logger log = Logger.getLogger(AppListner.class.getName());
 	
 	public static void main(String[] args) {
+		
+		/*Logger root = Logger.getLogger("");
+		for (Handler h : root.getHandlers())
+			root.removeHandler(h);
+		ConsoleHandler console = new ConsoleHandler();
+		console.setLevel(Level.FINEST);
+		root.addHandler(console);
+        root.setLevel(Level.FINEST);
+		
+		log.info(Arrays.toString(args));
+		log.finest("Logger di livello FINEST");
+		*/
 		
 		try {
 			

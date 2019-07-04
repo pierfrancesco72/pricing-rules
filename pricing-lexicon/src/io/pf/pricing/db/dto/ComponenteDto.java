@@ -16,9 +16,9 @@ public class ComponenteDto extends IdComponente implements RowMapper<ComponenteD
 	@Override
 	public ComponenteDto mapRow(ResultSet rs, int arg1) throws SQLException {
 		ComponenteDto dto = new ComponenteDto();
-		dto.setCodice(rs.getString(1));
+		dto.setCodice(rs.getString(1).trim());
 		dto.setId(rs.getInt(2));
-		dto.setTipo(TipoComponente.daDB(rs.getString(3)));
+		dto.setTipo(TipoComponente.daDB(rs.getString(3).trim()));
 		dto.setLunghezza(rs.getInt(4));
 		dto.setDecimali(rs.getInt(5));
 		return dto;

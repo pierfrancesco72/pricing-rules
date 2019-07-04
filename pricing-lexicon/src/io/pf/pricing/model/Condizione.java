@@ -24,16 +24,17 @@ public class Condizione {
 	
 	
 	public Condizione(String codice, String componente) throws SQLException  {
-		log.fine("Condizione da cercare: "+codice+", compoente: "+componente);
+		log.fine("Condizione da cercare: "+codice+", componente: "+componente);
 		puntatore = new CondizionePuntatore(codice, componente);
 		this.codiceCondizione = codice;
 		this.codiceComponente = componente;
 	}
 	
-	public Condizione(String codice, String componente, String strQualificazione) throws SQLException  {
+	
+	/*public Condizione(String codice, String componente, String strQualificazione) throws SQLException  {
 		this(codice, componente);
 		setQualificazione(new Qualificazione(strQualificazione));
-	}
+	}*/
 
 	
 	public Object caricaValore () {
@@ -52,16 +53,16 @@ public class Condizione {
 		return qualificazione;
 	}
 
-	public void setQualificazione(Qualificazione qualificazione) {
+	public void setQualificazione(Qualificazione qualificazione) throws SQLException {
 		this.qualificazione = qualificazione;
-		puntatore.setIdQualificazione(qualificazione.getIdQUalificazione());
+		puntatore.setIdQualificazione(qualificazione.getIdQualificazione(puntatore.getIdServizio()));
 	}
 
 	public Listino getListino() {
 		return listino;
 	}
 
-	public void setListino(Listino listino) {
+	public void setListino(Listino listino) throws SQLException {
 		this.listino = listino;
 		puntatore.setIdCombinazioneListino(listino.getIdListino());
 	}
