@@ -3,6 +3,7 @@ package io.pf.pricing.model;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import io.pf.pricing.cache.ComponenteCache;
 import io.pf.pricing.cache.ConvenzioneCache;
 import io.pf.pricing.cache.OggettoRapportoCache;
 import io.pf.pricing.cache.ServizioCache;
@@ -37,8 +38,9 @@ public class Condizione {
 	}*/
 
 	
-	public Object caricaValore () {
-		return ValoreCondizioneCache.getValore(puntatore);
+	public Object caricaValore () throws SQLException {
+		IdComponente componente = ComponenteCache.getId(codiceComponente, puntatore.getIdCondizione());
+		return ValoreCondizioneCache.getValore(puntatore, componente);
 	}
 	
 	public String getCodiceCondizione() {

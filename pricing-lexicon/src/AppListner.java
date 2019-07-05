@@ -23,7 +23,7 @@ public class AppListner {
 	
 	public static void main(String[] args) {
 		
-		/*Logger root = Logger.getLogger("");
+		Logger root = Logger.getLogger("");
 		for (Handler h : root.getHandlers())
 			root.removeHandler(h);
 		ConsoleHandler console = new ConsoleHandler();
@@ -33,7 +33,7 @@ public class AppListner {
 		
 		log.info(Arrays.toString(args));
 		log.finest("Logger di livello FINEST");
-		*/
+		
 		
 		try {
 			

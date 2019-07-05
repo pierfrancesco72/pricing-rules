@@ -18,6 +18,8 @@ public class CondizionePuntatore {
 	
 	private CondizionePuntatore() {
 		idServizio = 0;
+		idCondizione = 0;
+		idComponente = 0;
 		idQualificazione = 0;
 		idCombinazioneListino = 0;
 		idConvenzione = 0;
@@ -106,6 +108,21 @@ public class CondizionePuntatore {
 
 	public void setIdOggettoRapporto(Integer idOggettoRapporto) {
 		this.idOggettoRapporto = idOggettoRapporto;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj==null)
+			return false;
+		CondizionePuntatore p = (CondizionePuntatore)obj;
+		
+		return p.idServizio.equals(idServizio)
+				&& p.getIdCondizione().equals(idCondizione)
+				&& p.getIdComponente().equals(idComponente)
+				&& p.getIdQualificazione().equals(idQualificazione)
+				&& p.getIdCombinazioneListino().equals(idCombinazioneListino)
+				&& p.getIdConvenzione().equals(idConvenzione)
+				&& p.getIdOggettoRapporto().equals(idOggettoRapporto);
 	}
 
 	@Override

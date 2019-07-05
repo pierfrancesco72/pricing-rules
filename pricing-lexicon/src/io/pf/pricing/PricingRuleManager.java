@@ -235,12 +235,13 @@ public class PricingRuleManager extends PricingRulesBaseListener {
 			if (ctx.listino() != null) {
 				driver.getCondizione().setListino(new Listino(ctx.listino().getText()));
 			}
+			
+			driver.setValore(driver.getCondizione().caricaValore());
+			
 		} catch (SQLException e) {
 			log.severe(ExceptionUtils.getStackTrace(e));
 			throw new RuntimeException(e.getMessage());
 		}
-		
-		driver.setValore(driver.getCondizione().caricaValore());
 		
 		gestisciDriver(driver);
 	}

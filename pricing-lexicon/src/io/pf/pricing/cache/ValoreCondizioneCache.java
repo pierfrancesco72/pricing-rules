@@ -1,11 +1,15 @@
 package io.pf.pricing.cache;
 
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
 import org.cache2k.Cache;
 import org.cache2k.Cache2kBuilder;
 
+import io.pf.pricing.db.ValoreCondizioneDao;
+import io.pf.pricing.db.dto.ValoreDto;
 import io.pf.pricing.model.CondizionePuntatore;
+import io.pf.pricing.model.IdComponente;
 
 public class ValoreCondizioneCache {
 	
@@ -28,36 +32,27 @@ public class ValoreCondizioneCache {
 	 * 
 	 * @param codiceServizio ovvero CC, CA, PD, FA ecc.
 	 * @return
+	 * @throws SQLException 
 	 */
-	public static Object getValore(CondizionePuntatore cdz) {
+	public static Object getValore(CondizionePuntatore cdz, IdComponente componente) throws SQLException {
 		Object val = ValoreCondizioneCache.getCache().peek(cdz);
 		if (val==null) {
 			
-			Float nrval = null;
-			String dsval = null;
 			
-			//TODO prelevare da DB 
+			ValoreDto dto = null;
+			
 			if (cdz.getIdOggettoRapporto()>0) {
-				//SELECT DSVAL, NRVAL FROM C6TBVAOG WHERE IDCDZ=? and IDCOMPO=? and IDQUALIF=? and CDSERINT=?;
-				dsval = "CIAO";
+				dto = ValoreCondizioneDao.getValoreOggetto(cdz);
 			} else if (cdz.getIdConvenzione()>0) {
-				//SELECT DSVAL, NRVAL FROM C6TBVACN WHERE IDCDZ=? and IDCOMPO=? and IDQUALIF=? and CDSERINT=? and CDCONV=?;
+				dto = ValoreCondizioneDao.getValoreConvenzione(cdz);
 			} else if (cdz.getIdCombinazioneListino()>0) {
-				//SELECT DSVAL, NRVAL FROM C6TBVA?? WHERE IDCDZ=? and IDCOMPO=? and IDQUALIF=? and CDSERINT=? and CDCOMB=?;
-				nrval = 15.65F;
+				dto = ValoreCondizioneDao.getValoreListino(cdz);
 			} else {
-				//SELECT DSVAL, NRVAL FROM C6TBVA?? WHERE IDCDZ=? and IDCOMPO=? and IDQUALIF=? and CDSERINT=?;
-				nrval = 18.50F;
+				dto = ValoreCondizioneDao.getValoreIstituto(cdz);
 			}
-			
-			if (nrval != null) {
-				cache.put(cdz, nrval);
-				val = nrval;
-			} else if (dsval != null) {
-				cache.put(cdz, dsval);
-				val = dsval;
-			} else
-				throw new RuntimeException("Condizione non trovata, con i seguenti parametri: "+cdz.toString());
+			dto.setComponente(componente);
+			val = dto.toCache();
+			cache.put(cdz, val);
 		}
 		return val;
 	}
